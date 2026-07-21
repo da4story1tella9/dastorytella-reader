@@ -6,7 +6,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Early implementation** — navigation shell (Library / Voices / Settings) and the Library screen are built with mock data (see ADR-0004, ADR-0005). No backend calls yet; Voices and Settings are placeholders.
+🚧 **Early implementation** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and all three tabs are built against hardcoded mock data. No backend calls yet — the Player screen and real data sources are next.
 
 ## Tech Stack
 
