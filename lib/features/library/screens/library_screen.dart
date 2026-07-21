@@ -26,7 +26,6 @@ class LibraryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final LibrarySegment segment = ref.watch(librarySegmentProvider);
     final List<Book> books = ref.watch(libraryBooksProvider);
-    final Book? nowPlaying = books.isEmpty ? null : books.first;
 
     return Scaffold(
       body: SafeArea(
@@ -117,14 +116,10 @@ class LibraryScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            if (nowPlaying != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: MiniPlayer(
-                  book: nowPlaying,
-                  subtitle: 'Ch. 3 · 14:22 left',
-                ),
-              ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 10),
+              child: MiniPlayer(),
+            ),
           ],
         ),
       ),

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/library/screens/library_screen.dart';
+import '../../features/player/screens/player_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
 import 'app_shell.dart';
@@ -57,6 +58,14 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
             ],
           ),
         ],
+      ),
+      // Pushed on the root navigator (a sibling of the shell route, not
+      // nested in a branch) so it covers the bottom nav entirely,
+      // matching the mockup's full-screen Player.
+      GoRoute(
+        path: '/player',
+        builder: (BuildContext context, GoRouterState state) =>
+            const PlayerScreen(),
       ),
     ],
   );

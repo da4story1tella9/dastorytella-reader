@@ -64,6 +64,7 @@ class VoicesScreen extends ConsumerWidget {
               height: 34,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(right: 20),
                 itemCount: VoiceExploreTab.values.length,
                 separatorBuilder: (BuildContext context, int index) =>
                     const SizedBox(width: 8),
@@ -83,6 +84,7 @@ class VoicesScreen extends ConsumerWidget {
               height: 34,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(right: 20),
                 itemCount: VoiceCategory.values.length,
                 separatorBuilder: (BuildContext context, int index) =>
                     const SizedBox(width: 8),
