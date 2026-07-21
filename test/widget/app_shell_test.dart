@@ -17,7 +17,8 @@ void main() {
     await tester.tap(find.text('Voices'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Voice catalog coming soon.'), findsOneWidget);
+    expect(find.text('Amara'), findsOneWidget);
+    expect(find.text('Kwame'), findsOneWidget);
 
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();

@@ -1,22 +1,25 @@
-/// Saved / Collections / Archive switcher.
+/// Pill-style segmented switcher, generic over the option type.
 /// Mirrors `.segmented` in `docs/design-reference/app-mockups-v2.html`.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../models/library_segment.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_typography.dart';
 
-class LibrarySegmentedControl extends StatelessWidget {
-  const LibrarySegmentedControl({
+class AppSegmentedControl<T> extends StatelessWidget {
+  const AppSegmentedControl({
+    required this.options,
     required this.selected,
+    required this.labelBuilder,
     required this.onChanged,
     super.key,
   });
 
-  final LibrarySegment selected;
-  final ValueChanged<LibrarySegment> onChanged;
+  final List<T> options;
+  final T selected;
+  final String Function(T option) labelBuilder;
+  final ValueChanged<T> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +32,12 @@ class LibrarySegmentedControl extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         child: Row(
           children: <Widget>[
-            for (final LibrarySegment segment in LibrarySegment.values)
+            for (final T option in options)
               Expanded(
                 child: _Segment(
-                  label: segment.label,
-                  active: segment == selected,
-                  onTap: () => onChanged(segment),
+                  label: labelBuilder(option),
+                  active: option == selected,
+                  onTap: () => onChanged(option),
                 ),
               ),
           ],
