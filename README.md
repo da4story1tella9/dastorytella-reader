@@ -6,7 +6,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Pre-implementation** — project scaffold and design system in place. Feature screens not yet built.
+🚧 **Early implementation** — navigation shell (Library / Voices / Settings) and the Library screen are built with mock data (see ADR-0004, ADR-0005). No backend calls yet; Voices and Settings are placeholders.
 
 ## Tech Stack
 

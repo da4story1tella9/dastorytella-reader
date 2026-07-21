@@ -28,6 +28,10 @@ android/app/profile/
 android/app/release/
 android/local.properties
 
+# Web — added only for local `flutter run -d chrome` preview during dev;
+# not a targeted platform (see ADR-0002, iOS + Android only)
+web/
+
 # macOS
 .DS_Store
 

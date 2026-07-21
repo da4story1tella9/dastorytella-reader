@@ -11,12 +11,15 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
 
+  # State management (see ARCHITECTURE.md §2, ADR-0004) and navigation
+  # (ADR-0005) — the two decisions needed before any feature screen.
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+
   # --- Not yet added; documented here as the anticipated set. ---
   # Add via `flutter pub add <package>` when each feature is actually built,
   # rather than pre-installing unused dependencies.
   #
-  # State management:      riverpod / flutter_riverpod   (see ARCHITECTURE.md §2)
-  # Navigation:             go_router
   # Audio playback:         just_audio
   # Offline TTS inference:  sherpa_onnx (or platform-channel bridge)
   # Backend/auth:           supabase_flutter

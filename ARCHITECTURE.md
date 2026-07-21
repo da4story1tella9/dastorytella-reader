@@ -31,9 +31,9 @@ Cloud TTS API keys must never ship inside a mobile binary — they'd be extracte
 **Pattern: feature-first folder structure.**
 Each feature (`library`, `player`, `voices`, `settings`, `onboarding`, `search`) is self-contained: its own screens, widgets, models, and state. Shared code lives in `core/` (theming, network, constants) and `shared_widgets/` (design-system components used across features). This scales better than a layer-first structure (`models/`, `views/`, `controllers/` at the top level) once the app has more than a handful of screens — related code stays together instead of spreading across three top-level folders per feature.
 
-**State management:** *(decision pending — see ADR-0004 template)*. Candidates: Riverpod (recommended default for new Flutter projects, testable, compile-safe) vs. Bloc (more ceremony, better for very large teams). Given this is a solo/small-team project, Riverpod is the likely fit — final decision to be recorded once made.
+**State management:** Riverpod (`flutter_riverpod`) — see ADR-0004.
 
-**Navigation:** *(decision pending)*. `go_router` is the standard choice for declarative, deep-link-friendly navigation in modern Flutter — recommended default.
+**Navigation:** `go_router`, with a `StatefulShellRoute.indexedStack` for the Library / Voices / Settings bottom nav — see ADR-0005.
 
 ## 3. Text-to-Speech Pipeline
 
@@ -71,7 +71,11 @@ Piper models (ONNX format, ~20–100MB per voice) are downloaded on-device and r
 
 ## 7. Open Decisions
 
-Tracked as ADRs once resolved. Currently open:
-- State management library (Riverpod vs. Bloc)
-- Navigation library (`go_router` assumed, not yet confirmed)
+Tracked as ADRs once resolved.
+
+Resolved:
+- State management library → Riverpod (ADR-0004)
+- Navigation library → `go_router` (ADR-0005)
+
+Currently open:
 - Exact cloud TTS provider mix at launch (Azure only, or Azure + ElevenLabs from day one)
