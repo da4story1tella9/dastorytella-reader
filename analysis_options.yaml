@@ -1,0 +1,21 @@
+# Lint configuration.
+# Base: flutter_lints (official Flutter team ruleset, built on Effective Dart).
+# See CONTRIBUTING.md — `flutter analyze` must pass before every commit;
+# CI enforces this on every PR (.github/workflows/ci.yml).
+
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Project-specific tightening beyond the base ruleset.
+    # Start conservative; add rules deliberately, each with a reason,
+    # rather than enabling a large strict preset unreviewed.
+    prefer_single_quotes: true
+    always_declare_return_types: true
+    avoid_print: true
+    require_trailing_commas: true
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"

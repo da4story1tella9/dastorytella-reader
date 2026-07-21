@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>daStoryTella's Reader — Core Batch 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F1; --surface:#FFFFFF; --surface-alt:#F2EDE3;
+    --ink:#251D18; --ink-soft:#71675A; --ink-faint:#A79C8C;
+    --line:#EAE3D6; --gold:#C98A2E; --gold-soft:#F0CE95; --gold-pale:#FBEDD3;
+    --maroon:#7A2E34; --maroon-pale:#F5E7E6; --green:#5C8A5C; --green-pale:#E7F0E4;
+    --shadow: rgba(37,29,24,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; background:#EDE7DB; font-family:'Manrope',sans-serif; }
+  body{ display:flex; flex-direction:column; align-items:center; padding:44px 16px 70px; gap:34px; }
+  .intro{ max-width:720px; text-align:center; color:var(--ink-soft); font-size:13px; line-height:1.7; }
+  .intro b{ color:var(--maroon); }
+  .row{ display:flex; gap:26px; overflow-x:auto; padding:10px 10px 20px; max-width:100%; scroll-snap-type:x proximity; }
+  .unit{ display:flex; flex-direction:column; align-items:center; gap:14px; scroll-snap-align:start; }
+  .unit-label{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--maroon); }
+  .phone{ width:340px; height:734px; border-radius:46px; background:#141210; padding:10px; box-shadow: 0 30px 70px -18px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06); flex-shrink:0; }
+  .screen{ width:100%; height:100%; border-radius:38px; overflow:hidden; background:var(--bg); position:relative; display:flex; flex-direction:column; }
+  .statusbar{ display:flex; justify-content:space-between; padding:14px 22px 0; font-size:12px; font-weight:700; color:var(--ink); }
+  .scrollarea{ flex:1; overflow-y:auto; padding:14px 20px 0; }
+  .scrollarea::-webkit-scrollbar{ display:none; }
+  h1.screen-title{ font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:var(--ink); }
+  .top-row{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .icon-btn{ width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .icon-btn.plain{ background:none; border:none; }
+
+  /* ---------- Settings ---------- */
+  .profile-card{
+    display:flex; align-items:center; gap:12px; margin-top:18px; padding:14px;
+    background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  }
+  .profile-avatar{
+    width:48px; height:48px; border-radius:50%; background:linear-gradient(150deg,#c98a2e,#7a2e34);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:600; font-size:18px;
+  }
+  .profile-info .name{ font-weight:700; font-size:14.5px; color:var(--ink); }
+  .profile-info .sub{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .plan-pill{ margin-left:auto; font-size:9.5px; font-weight:800; letter-spacing:.05em; color:var(--maroon); background:var(--maroon-pale); padding:4px 8px; border-radius:8px; }
+
+  .settings-group{ margin-top:22px; }
+  .settings-group .label{ font-size:10.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; padding-left:2px; }
+  .settings-list{ background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .settings-row{
+    display:flex; align-items:center; gap:12px; padding:13px 14px; border-bottom:1px solid var(--line);
+  }
+  .settings-row:last-child{ border-bottom:none; }
+  .settings-row .ic{ width:30px; height:30px; border-radius:9px; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--maroon); flex-shrink:0; }
+  .settings-row .txt{ flex:1; }
+  .settings-row .txt .t{ font-size:13px; font-weight:700; color:var(--ink); }
+  .settings-row .txt .s{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+  .settings-row .val{ font-size:12px; color:var(--ink-faint); font-weight:600; }
+  .storage-bar{ height:6px; border-radius:3px; background:var(--line); margin-top:8px; overflow:hidden; display:flex; }
+  .storage-bar i{ display:block; height:100%; }
+
+  /* ---------- Chapter list ---------- */
+  .book-hero-row{ display:flex; gap:14px; align-items:center; margin-top:16px; }
+  .book-hero-cover{ width:64px; height:92px; border-radius:10px; background:linear-gradient(150deg,#8a3a3f,#4c1c20); flex-shrink:0; box-shadow:0 10px 18px -8px var(--shadow); }
+  .book-hero-info .t{ font-family:'Fraunces',serif; font-weight:600; font-size:16.5px; color:var(--ink); }
+  .book-hero-info .a{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .book-hero-info .p{ font-size:10.5px; color:var(--gold); font-weight:700; margin-top:5px; }
+
+  .chapter-list{ margin-top:20px; }
+  .chapter-row{
+    display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid var(--line);
+  }
+  .chapter-num{ width:26px; text-align:center; font-size:12px; font-weight:700; color:var(--ink-faint); flex-shrink:0; }
+  .chapter-row.current .chapter-num{ color:var(--maroon); }
+  .chapter-info{ flex:1; }
+  .chapter-info .t{ font-size:13px; font-weight:700; color:var(--ink); }
+  .chapter-row.done .chapter-info .t{ color:var(--ink-faint); }
+  .chapter-info .s{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+  .chapter-status{ width:22px; display:flex; justify-content:center; flex-shrink:0; }
+  .now-playing-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--maroon);
+    box-shadow:0 0 0 4px var(--maroon-pale);
+  }
+
+  /* ---------- empty state ---------- */
+  .empty-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:100%; padding:0 30px; }
+  .empty-icon{
+    width:76px; height:76px; border-radius:22px; background:var(--surface-alt);
+    display:flex; align-items:center; justify-content:center; color:var(--maroon); margin-bottom:20px;
+  }
+  .empty-wrap h2{ font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:var(--ink); }
+  .empty-wrap p{ font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6; }
+  .empty-cta{
+    margin-top:22px; background:var(--maroon); color:#fff; font-weight:700; font-size:12.5px;
+    padding:12px 22px; border-radius:14px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .empty-hint{ margin-top:14px; font-size:10.5px; color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Core batch 1 of 2</b> — Settings, Book detail / chapter list (where the Player's "Chapter 3 ⌄" tap now goes), and the empty-library state. Next batch: Search results, Onboarding/sign-in.
+</div>
+
+<div class="row">
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="unit">
+    <div class="unit-label">Settings</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <h1 class="screen-title">Settings</h1>
+
+        <div class="profile-card">
+          <div class="profile-avatar">K</div>
+          <div class="profile-info">
+            <div class="name">Kelechi Omeire</div>
+            <div class="sub">kelechi@dastorytella.app</div>
+          </div>
+          <div class="plan-pill">FREE</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="label">Reading & Playback</div>
+          <div class="settings-list">
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+              <div class="txt"><div class="t">Default voice</div><div class="s">Used for newly imported books</div></div>
+              <div class="val">Amara ›</div>
+            </div>
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3V15M12 15L7 10M12 15L17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="txt"><div class="t">Playback speed</div><div class="s">Default for new sessions</div></div>
+              <div class="val">1.0× ›</div>
+            </div>
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div class="txt"><div class="t">Pronunciation dictionary</div><div class="s">12 custom entries</div></div>
+              <div class="val">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="label">Storage</div>
+          <div class="settings-list">
+            <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div style="display:flex; justify-content:space-between;">
+                <div class="t">1.8 GB of 4 GB used</div>
+                <div class="val">Manage ›</div>
+              </div>
+              <div class="storage-bar">
+                <i style="width:32%; background:var(--maroon);"></i>
+                <i style="width:14%; background:var(--gold);"></i>
+              </div>
+              <div style="display:flex; gap:12px; font-size:9.5px; color:var(--ink-faint);">
+                <span>● Books</span><span>● Voices</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="label">Account</div>
+          <div class="settings-list">
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="txt"><div class="t">Upgrade to Ultra</div><div class="s">More cloud voices, offline packs</div></div>
+              <div class="val">›</div>
+            </div>
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+              <div class="txt"><div class="t">Sync & backup</div><div class="s">Last synced 2 mins ago</div></div>
+              <div class="val">›</div>
+            </div>
+            <div class="settings-row">
+              <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+              <div class="txt"><div class="t">Privacy & data</div></div>
+              <div class="val">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav" style="display:flex; align-items:center; justify-content:space-around; padding:10px 10px 18px; margin-top:8px; border-top:1px solid var(--line);">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Library</div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Voices</div>
+        <div style="width:46px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Stats</div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--maroon); font-size:9.5px; font-weight:700;">Settings</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ CHAPTER LIST / BOOK DETAIL ============ -->
+  <div class="unit">
+    <div class="unit-label">Book detail · Chapters</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg></div>
+        </div>
+
+        <div class="book-hero-row">
+          <div class="book-hero-cover"></div>
+          <div class="book-hero-info">
+            <div class="t">Le Salon Caramel</div>
+            <div class="a">Read by Amara · 6h 40m total</div>
+            <div class="p">38% complete · Ch. 3 of 18</div>
+          </div>
+        </div>
+
+        <div class="chip-row" style="display:flex; gap:8px; margin-top:16px;">
+          <div class="chip active" style="flex-shrink:0; padding:7px 13px; border-radius:20px; font-size:11.5px; font-weight:700; background:var(--maroon); color:#fff;">Chapters</div>
+          <div class="chip" style="flex-shrink:0; padding:7px 13px; border-radius:20px; font-size:11.5px; font-weight:700; background:var(--surface); color:var(--ink-soft); border:1px solid var(--line);">Bookmarks</div>
+          <div class="chip" style="flex-shrink:0; padding:7px 13px; border-radius:20px; font-size:11.5px; font-weight:700; background:var(--surface); color:var(--ink-soft); border:1px solid var(--line);">Details</div>
+        </div>
+
+        <div class="chapter-list">
+          <div class="chapter-row done">
+            <div class="chapter-num">1</div>
+            <div class="chapter-info"><div class="t">The Rain in Abidjan</div><div class="s">22 min</div></div>
+            <div class="chapter-status"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="chapter-row done">
+            <div class="chapter-num">2</div>
+            <div class="chapter-info"><div class="t">A Backbencher's Vow</div><div class="s">19 min</div></div>
+            <div class="chapter-status"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="chapter-row current">
+            <div class="chapter-num">3</div>
+            <div class="chapter-info"><div class="t">Le Salon Caramel</div><div class="s">14:22 left of 38:07</div></div>
+            <div class="chapter-status"><div class="now-playing-dot"></div></div>
+          </div>
+          <div class="chapter-row">
+            <div class="chapter-num">4</div>
+            <div class="chapter-info"><div class="t">The Vendor's Silence</div><div class="s">26 min</div></div>
+            <div class="chapter-status"></div>
+          </div>
+          <div class="chapter-row">
+            <div class="chapter-num">5</div>
+            <div class="chapter-info"><div class="t">Aïssa Asks a Question</div><div class="s">31 min</div></div>
+            <div class="chapter-status"></div>
+          </div>
+          <div class="chapter-row">
+            <div class="chapter-num">6</div>
+            <div class="chapter-info"><div class="t">VIP Section, Abuja</div><div class="s">24 min</div></div>
+            <div class="chapter-status"></div>
+          </div>
+          <div class="chapter-row">
+            <div class="chapter-num">7</div>
+            <div class="chapter-info"><div class="t">Broken Glass</div><div class="s">18 min</div></div>
+            <div class="chapter-status"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-player" style="margin:10px 14px 14px; background:var(--surface); border-radius:16px; padding:9px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 20px -10px var(--shadow); border:1px solid var(--line);">
+        <div style="width:34px; height:34px; border-radius:8px; background:linear-gradient(150deg,#8a3a3f,#4c1c20); flex-shrink:0;"></div>
+        <div style="flex:1; min-width:0;"><div style="font-size:12px; font-weight:700; color:var(--ink);">Le Salon Caramel</div><div style="font-size:10.5px; color:var(--ink-soft);">Ch. 3 · 14:22 left</div></div>
+        <div style="width:30px; height:30px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ EMPTY LIBRARY ============ -->
+  <div class="unit">
+    <div class="unit-label">Empty library state</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea" style="display:flex; flex-direction:column;">
+        <div class="top-row">
+          <h1 class="screen-title">Library</h1>
+          <div style="display:flex; gap:8px;">
+            <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+        <div class="empty-wrap">
+          <div class="empty-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5Z" stroke="currentColor" stroke-width="1.6"/><path d="M13 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5V3Z" stroke="currentColor" stroke-width="1.6"/></svg>
+          </div>
+          <h2>Your library is empty</h2>
+          <p>Add a book, article, or draft to hear it read back to you — in whichever voice fits the mood.</p>
+          <div class="empty-cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+            Import your first book
+          </div>
+          <div class="empty-hint">Supports EPUB, PDF, DOCX, TXT — or paste text directly</div>
+        </div>
+      </div>
+      <div class="bottom-nav" style="display:flex; align-items:center; justify-content:space-around; padding:10px 10px 18px; margin-top:8px; border-top:1px solid var(--line);">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--maroon); font-size:9.5px; font-weight:700;">Library</div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Voices</div>
+        <div style="width:46px; height:46px; border-radius:50%; background:var(--maroon); display:flex; align-items:center; justify-content:center; margin-top:-26px; box-shadow:0 10px 20px -6px rgba(122,46,52,.55);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Stats</div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700;">Settings</div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+</body>
+</html>

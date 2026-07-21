@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>daStoryTella's Reader — Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F1;
+    --surface:#FFFFFF;
+    --surface-alt:#F2EDE3;
+    --ink:#251D18;
+    --ink-soft:#71675A;
+    --ink-faint:#A79C8C;
+    --line:#EAE3D6;
+    --gold:#C98A2E;
+    --gold-soft:#F0CE95;
+    --gold-pale:#FBEDD3;
+    --maroon:#7A2E34;
+    --maroon-pale:#F5E7E6;
+    --green:#5C8A5C;
+    --green-pale:#E7F0E4;
+    --shadow: rgba(37,29,24,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; background:#EDE7DB; font-family:'Manrope',sans-serif; }
+  body{
+    display:flex; flex-direction:column; align-items:center;
+    padding:44px 16px 70px;
+    gap:34px;
+  }
+  .intro{
+    max-width:720px; text-align:center; color:var(--ink-soft);
+    font-size:13px; line-height:1.7; letter-spacing:.01em;
+  }
+  .intro b{ color:var(--maroon); }
+
+  .row{
+    display:flex; gap:26px; overflow-x:auto; padding:10px 10px 20px;
+    max-width:100%;
+    scroll-snap-type:x proximity;
+  }
+  .unit{ display:flex; flex-direction:column; align-items:center; gap:14px; scroll-snap-align:start; }
+  .unit-label{
+    font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--maroon);
+  }
+
+  .phone{
+    width:340px; height:734px;
+    border-radius:46px;
+    background:#141210;
+    padding:10px;
+    box-shadow: 0 30px 70px -18px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06);
+    flex-shrink:0;
+  }
+  .screen{
+    width:100%; height:100%; border-radius:38px; overflow:hidden;
+    background:var(--bg); position:relative; display:flex; flex-direction:column;
+  }
+  .statusbar{
+    display:flex; justify-content:space-between; padding:14px 22px 0;
+    font-size:12px; font-weight:700; color:var(--ink);
+  }
+  .scrollarea{ flex:1; overflow-y:auto; padding:14px 20px 0; }
+  .scrollarea::-webkit-scrollbar{ display:none; }
+
+  h1.screen-title{
+    font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:var(--ink);
+  }
+  .top-row{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .icon-btn{
+    width:36px; height:36px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--surface); color:var(--ink);
+    border:1px solid var(--line);
+  }
+  .icon-btn.plain{ background:none; border:none; }
+
+  /* ---------- segmented control ---------- */
+  .segmented{
+    display:flex; gap:6px; background:var(--surface-alt); border-radius:14px; padding:4px;
+    margin-top:16px;
+  }
+  .segmented .seg{
+    flex:1; text-align:center; padding:8px 0; font-size:12.5px; font-weight:700;
+    color:var(--ink-soft); border-radius:11px; letter-spacing:.01em;
+  }
+  .segmented .seg.active{ background:var(--surface); color:var(--ink); box-shadow:0 2px 6px var(--shadow); }
+
+  /* ---------- Library grid ---------- */
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:18px; padding-bottom:16px; }
+  .book-card{ display:flex; flex-direction:column; gap:8px; }
+  .book-cover{
+    aspect-ratio:3/4.3; border-radius:14px; position:relative; overflow:hidden;
+    box-shadow:0 10px 20px -8px var(--shadow);
+    display:flex; align-items:flex-end; padding:10px;
+  }
+  .cover-a{ background:linear-gradient(150deg,#8a3a3f,#4c1c20); }
+  .cover-b{ background:linear-gradient(150deg,#c98a2e,#7a5218); }
+  .cover-c{ background:linear-gradient(150deg,#3d5a4e,#1f3129); }
+  .cover-d{ background:linear-gradient(150deg,#4a4266,#241f3d); }
+  .book-cover span{ font-family:'Fraunces',serif; color:#fff; font-size:11.5px; font-weight:600; line-height:1.25; }
+  .badge{
+    position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:7px;
+    background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;
+  }
+  .book-meta .t{ font-family:'Fraunces',serif; font-weight:600; font-size:13.5px; color:var(--ink); }
+  .book-meta .a{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
+  .mini-progress{ height:3px; border-radius:2px; background:var(--line); margin-top:6px; overflow:hidden; }
+  .mini-progress i{ display:block; height:100%; background:var(--gold); }
+
+  /* ---------- mini player ---------- */
+  .mini-player{
+    margin:10px 14px 0; background:var(--surface); border-radius:16px; padding:9px 12px;
+    display:flex; align-items:center; gap:10px; box-shadow:0 8px 20px -10px var(--shadow);
+    border:1px solid var(--line);
+  }
+  .mini-player .cov{ width:34px; height:34px; border-radius:8px; background:linear-gradient(150deg,#8a3a3f,#4c1c20); flex-shrink:0; }
+  .mini-player .info{ flex:1; min-width:0; }
+  .mini-player .info .t{ font-size:12px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-player .info .s{ font-size:10.5px; color:var(--ink-soft); }
+  .mini-player .ctr{ width:30px; height:30px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  /* ---------- bottom nav ---------- */
+  .bottom-nav{
+    display:flex; align-items:center; justify-content:space-around;
+    padding:10px 10px 18px; margin-top:8px; position:relative;
+    border-top:1px solid var(--line); background:var(--bg);
+  }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-faint); font-size:9.5px; font-weight:700; }
+  .nav-item.active{ color:var(--maroon); }
+  .nav-fab{
+    width:46px; height:46px; border-radius:50%; background:var(--maroon); color:#fff;
+    display:flex; align-items:center; justify-content:center; margin-top:-26px;
+    box-shadow:0 10px 20px -6px rgba(122,46,52,.55);
+  }
+
+  /* ---------- chips ---------- */
+  .chip-row{ display:flex; gap:8px; overflow-x:auto; margin-top:14px; padding-bottom:2px; }
+  .chip{
+    flex-shrink:0; padding:7px 13px; border-radius:20px; font-size:11.5px; font-weight:700;
+    background:var(--surface); color:var(--ink-soft); border:1px solid var(--line); white-space:nowrap;
+  }
+  .chip.active{ background:var(--maroon); color:#fff; border-color:var(--maroon); }
+
+  /* ---------- voices ---------- */
+  .voice-card{
+    display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line);
+  }
+  .avatar{ width:46px; height:46px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; color:#fff; font-size:15px; }
+  .av-a{ background:linear-gradient(150deg,#c98a2e,#8a5a1c); }
+  .av-b{ background:linear-gradient(150deg,#5c8a5c,#2f4c2f); }
+  .av-c{ background:linear-gradient(150deg,#7a2e34,#3f1418); }
+  .av-d{ background:linear-gradient(150deg,#4a4266,#241f3d); }
+  .voice-info{ flex:1; min-width:0; }
+  .voice-info .name{ font-size:13.5px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:6px; }
+  .voice-info .tags{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .offline-pill{
+    font-size:9px; font-weight:800; letter-spacing:.04em; color:var(--green); background:var(--green-pale);
+    padding:2px 7px; border-radius:8px; text-transform:uppercase;
+  }
+  .voice-actions{ display:flex; gap:6px; }
+  .vbtn{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:var(--surface-alt); color:var(--ink); }
+
+  /* ---------- player ---------- */
+  .player-top{ display:flex; align-items:center; justify-content:space-between; margin-top:4px; }
+  .player-chapter{ text-align:center; }
+  .player-chapter .lbl{ font-size:11px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:4px; justify-content:center; }
+  .player-chapter .sub{ font-size:10px; color:var(--ink-faint); margin-top:1px; }
+
+  .listen-read{ display:flex; justify-content:center; margin-top:14px; }
+
+  .cover-hero{
+    width:150px; height:212px; margin:20px auto 0; border-radius:16px;
+    background:linear-gradient(150deg,#8a3a3f,#4c1c20);
+    box-shadow:0 20px 34px -14px var(--shadow);
+    display:flex; align-items:flex-end; justify-content:center; padding:16px;
+    animation: breathe 4.5s ease-in-out infinite;
+  }
+  @keyframes breathe{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.018);} }
+  .cover-hero span{ font-family:'Fraunces',serif; color:#fff; font-size:12.5px; text-align:center; line-height:1.3; }
+
+  .np-title{ text-align:center; margin-top:14px; }
+  .np-title .book{ font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:var(--ink); }
+  .np-title .voice-chip{
+    display:inline-flex; align-items:center; gap:5px; margin-top:6px; font-size:11.5px; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line); padding:5px 11px; border-radius:16px; font-weight:700;
+  }
+
+  .transcript-card{
+    background:var(--surface); border-radius:16px; margin-top:16px; padding:16px;
+    border:1px solid var(--line);
+  }
+  .transcript-card p{ font-family:'Fraunces',serif; font-size:14.5px; line-height:1.65; color:var(--ink-faint); }
+  .transcript-card p .active{
+    color:var(--ink); background:var(--gold-pale); padding:1px 3px; border-radius:5px; font-weight:600;
+  }
+  .transcript-card .past{ color:var(--ink-faint); }
+  .view-full{ margin-top:10px; font-size:11px; font-weight:800; color:var(--maroon); text-align:right; }
+
+  .waveform{ display:flex; align-items:center; gap:2.5px; height:30px; margin-top:16px; }
+  .waveform .bar{ width:3px; border-radius:2px; background:var(--line); }
+  .waveform .bar.played{ background:var(--gold); }
+  .time-row{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-faint); margin-top:6px; }
+
+  .controls-labeled{ display:flex; align-items:center; justify-content:center; gap:30px; margin-top:20px; }
+  .cl-item{ display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--ink); }
+  .cl-item span{ font-size:9.5px; font-weight:700; color:var(--ink-soft); }
+  .play-big{
+    width:60px; height:60px; border-radius:50%; background:var(--ink); color:#fff;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 12px 22px -8px rgba(37,29,24,.4);
+  }
+
+  .func-row{ display:flex; gap:8px; overflow-x:auto; margin-top:20px; padding-bottom:4px; }
+  .func-chip{
+    flex-shrink:0; display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:14px;
+    background:var(--surface); border:1px solid var(--line); font-size:11px; font-weight:700; color:var(--ink);
+  }
+  .func-chip.on{ background:var(--maroon-pale); border-color:var(--maroon); color:var(--maroon); }
+
+  /* ---------- import sheet ---------- */
+  .dim{ position:absolute; inset:0; background:rgba(37,29,24,.45); z-index:5; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0; z-index:6;
+    background:var(--bg); border-radius:26px 26px 0 0; padding:20px 20px 26px;
+    box-shadow:0 -20px 40px rgba(0,0,0,.15);
+  }
+  .sheet-head{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .sheet-head h2{ font-family:'Fraunces',serif; font-size:19px; font-weight:600; color:var(--ink); }
+  .sheet-head p{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; }
+  .import-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+  .import-opt{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+  }
+  .import-opt .ic{ width:40px; height:40px; border-radius:12px; background:var(--gold-pale); color:var(--gold); display:flex; align-items:center; justify-content:center; }
+  .import-opt .lbl{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .import-opt .sub{ font-size:9.5px; color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Redesigned per your notes</b> — moved from the moody full-bleed dark theme to a light, warm-paper base with the maroon/gold reserved as accent, not atmosphere. Every screen below now shows the actual functional surface, not just a hero moment.
+</div>
+
+<div class="row">
+
+  <!-- ============ LIBRARY ============ -->
+  <div class="unit">
+    <div class="unit-label">Library</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <h1 class="screen-title">Library</h1>
+          <div style="display:flex; gap:8px;">
+            <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 7H20M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+        <div class="segmented">
+          <div class="seg active">Saved</div>
+          <div class="seg">Collections</div>
+          <div class="seg">Archive</div>
+        </div>
+        <div class="grid">
+          <div class="book-card">
+            <div class="book-cover cover-a"><span>LE SALON<br/>CARAMEL</span>
+              <div class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 3V15M12 15L7 10M12 15L17 10" stroke="#5C8A5C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19H19" stroke="#5C8A5C" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="book-meta"><div class="t">Le Salon Caramel</div><div class="a">Amara · Warm Narrative</div>
+              <div class="mini-progress"><i style="width:38%"></i></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover cover-c"><span>BLOOD OF<br/>THE PLATEAU</span>
+              <div class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 8 5 11 5 14a7 7 0 0014 0c0-3-2-6-7-11Z" stroke="#C98A2E" stroke-width="2"/></svg></div>
+            </div>
+            <div class="book-meta"><div class="t">Blood of the Plateau</div><div class="a">Kwame · Deep Cinematic</div>
+              <div class="mini-progress"><i style="width:12%"></i></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover cover-b"><span>ANATOMY OF<br/>A PROMPT</span></div>
+            <div class="book-meta"><div class="t">Anatomy of a Prompt</div><div class="a">Nadia · Clear & Brisk</div>
+              <div class="mini-progress"><i style="width:100%"></i></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover cover-d"><span>BLUE MARIE</span></div>
+            <div class="book-meta"><div class="t">Blue Marie (draft)</div><div class="a">You · Write-in text</div>
+              <div class="mini-progress"><i style="width:5%"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-player">
+        <div class="cov"></div>
+        <div class="info"><div class="t">Le Salon Caramel</div><div class="s">Ch. 3 · 14:22 left</div></div>
+        <div class="ctr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5Z" stroke="currentColor" stroke-width="1.8"/><path d="M13 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5V3Z" stroke="currentColor" stroke-width="1.8"/></svg>Library</div>
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Voices</div>
+        <div class="nav-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/></svg>Stats</div>
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.3.9a7 7 0 00-2-1.2L14 3h-4l-.6 2.5a7 7 0 00-2 1.2l-2.3-.9-2 3.4 2 1.6a7 7 0 000 2.4l-2 1.6 2 3.4 2.3-.9a7 7 0 002 1.2L10 21h4l.6-2.5a7 7 0 002-1.2l2.3.9 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z" stroke="currentColor" stroke-width="1.4"/></svg>Settings</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ PLAYER ============ -->
+  <div class="unit">
+    <div class="unit-label">Player — functional detail</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="player-top">
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="player-chapter">
+            <div class="lbl">Chapter 3 <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+            <div class="sub">of 18 · Le Salon Caramel</div>
+          </div>
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg></div>
+        </div>
+
+        <div class="listen-read">
+          <div class="segmented" style="width:180px;">
+            <div class="seg active">Listen</div>
+            <div class="seg">Read</div>
+          </div>
+        </div>
+
+        <div class="cover-hero"><span>LE SALON<br/>CARAMEL</span></div>
+
+        <div class="np-title">
+          <div class="book">Le Salon Caramel</div>
+          <div class="voice-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.5"/></svg> Amara — Warm Narrative <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M8 4L16 12L8 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <div class="transcript-card">
+          <p><span class="past">The rain in Abidjan arrives without apology, sudden as a decision he never quite made. </span><span class="active">He ducked beneath the café's canvas awning, the city dissolving to a wash of headlights and wet asphalt. </span><span>Inside, the smell of roasted coffee — and a woman named Aïssa, watching him from the counter.</span></p>
+          <div class="view-full">View full transcript →</div>
+        </div>
+
+        <div class="waveform" id="wf2"></div>
+        <div class="time-row"><span>14:22</span><span>38:07</span></div>
+
+        <div class="controls-labeled">
+          <div class="cl-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V2L7 6L12 10V7A5 5 0 1 1 7 12H5A7 7 0 1 0 12 5Z" fill="currentColor"/></svg><span>Back 15</span></div>
+          <div class="play-big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></div>
+          <div class="cl-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V2L17 6L12 10V7A5 5 0 1 0 17 12H19A7 7 0 1 1 12 5Z" fill="currentColor"/></svg><span>Fwd 15</span></div>
+        </div>
+
+        <div class="func-row">
+          <div class="func-chip">1.0× Speed</div>
+          <div class="func-chip on">⬇ Downloaded</div>
+          <div class="func-chip">⏱ Sleep: Off</div>
+          <div class="func-chip">☆ Bookmark</div>
+          <div class="func-chip">↗ Share</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ VOICES ============ -->
+  <div class="unit">
+    <div class="unit-label">Voices</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <h1 class="screen-title">Voices</h1>
+          <div style="display:flex; gap:8px;">
+            <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 7H20M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+        <div class="segmented">
+          <div class="seg active">All</div>
+          <div class="seg">Cloud</div>
+          <div class="seg">Downloaded</div>
+        </div>
+        <div class="chip-row">
+          <div class="chip active">Explore</div>
+          <div class="chip">Recents</div>
+          <div class="chip">Favorites</div>
+        </div>
+        <div class="chip-row">
+          <div class="chip">Narrative & Story</div>
+          <div class="chip">Conversational</div>
+          <div class="chip">Characters</div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="voice-card">
+            <div class="avatar av-a">A</div>
+            <div class="voice-info">
+              <div class="name">Amara <span class="offline-pill">Offline ready</span></div>
+              <div class="tags">Warm, African-accented · Narrative & Story</div>
+            </div>
+            <div class="voice-actions">
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="voice-card">
+            <div class="avatar av-c">K</div>
+            <div class="voice-info">
+              <div class="name">Kwame</div>
+              <div class="tags">Deep, cinematic · Narrative & Story</div>
+            </div>
+            <div class="voice-actions">
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 4V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            </div>
+          </div>
+          <div class="voice-card">
+            <div class="avatar av-b">N</div>
+            <div class="voice-info">
+              <div class="name">Nadia <span class="offline-pill">Offline ready</span></div>
+              <div class="tags">Clear, brisk · Conversational</div>
+            </div>
+            <div class="voice-actions">
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="voice-card">
+            <div class="avatar av-d">T</div>
+            <div class="voice-info">
+              <div class="name">Tobi</div>
+              <div class="tags">Bright, youthful · Characters & Dialogue</div>
+            </div>
+            <div class="voice-actions">
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+              <div class="vbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 4V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5Z" stroke="currentColor" stroke-width="1.8"/><path d="M13 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5V3Z" stroke="currentColor" stroke-width="1.8"/></svg>Library</div>
+        <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Voices</div>
+        <div class="nav-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/></svg>Stats</div>
+        <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>Settings</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ IMPORT SHEET ============ -->
+  <div class="unit">
+    <div class="unit-label">Import sheet</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <h1 class="screen-title">Library</h1>
+        </div>
+        <div class="grid" style="opacity:.5;">
+          <div class="book-card"><div class="book-cover cover-a"><span>LE SALON<br/>CARAMEL</span></div></div>
+          <div class="book-card"><div class="book-cover cover-c"><span>BLOOD OF<br/>THE PLATEAU</span></div></div>
+        </div>
+      </div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="sheet-head">
+          <div><h2>Import a book</h2><p>Choose how you'd like to add it</p></div>
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="import-grid">
+          <div class="import-opt">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 4V15M12 4L7 9M12 4L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 17V19a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="lbl">Upload a file</div>
+            <div class="sub">EPUB, PDF, DOCX, TXT</div>
+          </div>
+          <div class="import-opt">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10 14a3.5 3.5 0 005 0l3-3a3.5 3.5 0 00-5-5l-1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 10a3.5 3.5 0 00-5 0l-3 3a3.5 3.5 0 005 5l1-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="lbl">Paste a link</div>
+            <div class="sub">Articles & web text</div>
+          </div>
+          <div class="import-opt">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 8V6a2 2 0 012-2h2M18 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M6 20H4a2 2 0 01-2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="lbl">Scan text</div>
+            <div class="sub">Camera OCR</div>
+          </div>
+          <div class="import-opt">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="lbl">Write text</div>
+            <div class="sub">Paste or type in</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+  function buildWaveform(id, playedCount){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const count = 42;
+    for(let i=0;i<count;i++){
+      const h = 6 + Math.abs(Math.sin(i*0.5))*18 + Math.abs(Math.cos(i*0.22))*5;
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (i < playedCount ? ' played' : '');
+      bar.style.height = Math.round(h) + 'px';
+      el.appendChild(bar);
+    }
+  }
+  buildWaveform('wf2', 15);
+</script>
+
+</body>
+</html>

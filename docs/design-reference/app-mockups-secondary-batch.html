@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>daStoryTella's Reader — Secondary Batch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F1; --surface:#FFFFFF; --surface-alt:#F2EDE3;
+    --ink:#251D18; --ink-soft:#71675A; --ink-faint:#A79C8C;
+    --line:#EAE3D6; --gold:#C98A2E; --gold-soft:#F0CE95; --gold-pale:#FBEDD3;
+    --maroon:#7A2E34; --maroon-pale:#F5E7E6; --green:#5C8A5C; --green-pale:#E7F0E4;
+    --blue:#4A6FA5; --blue-pale:#E9EFF7;
+    --shadow: rgba(37,29,24,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; background:#EDE7DB; font-family:'Manrope',sans-serif; }
+  body{ display:flex; flex-direction:column; align-items:center; padding:44px 16px 70px; gap:34px; }
+  .intro{ max-width:720px; text-align:center; color:var(--ink-soft); font-size:13px; line-height:1.7; }
+  .intro b{ color:var(--maroon); }
+  .row{ display:flex; gap:26px; overflow-x:auto; padding:10px 10px 20px; max-width:100%; scroll-snap-type:x proximity; }
+  .unit{ display:flex; flex-direction:column; align-items:center; gap:14px; scroll-snap-align:start; }
+  .unit-label{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--maroon); }
+  .phone{ width:340px; height:734px; border-radius:46px; background:#141210; padding:10px; box-shadow: 0 30px 70px -18px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06); flex-shrink:0; }
+  .screen{ width:100%; height:100%; border-radius:38px; overflow:hidden; background:var(--bg); position:relative; display:flex; flex-direction:column; }
+  .statusbar{ display:flex; justify-content:space-between; padding:14px 22px 0; font-size:12px; font-weight:700; color:var(--ink); }
+  .scrollarea{ flex:1; overflow-y:auto; padding:14px 20px 0; }
+  .scrollarea::-webkit-scrollbar{ display:none; }
+  h1.screen-title{ font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:var(--ink); }
+  .top-row{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .icon-btn{ width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .icon-btn.plain{ background:none; border:none; }
+  .section-label{ font-size:10.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin:20px 0 8px 2px; }
+
+  /* ---------- Voice detail ---------- */
+  .voice-hero{ display:flex; flex-direction:column; align-items:center; text-align:center; margin-top:10px; }
+  .voice-hero .avatar-lg{
+    width:84px; height:84px; border-radius:24px; background:linear-gradient(150deg,#c98a2e,#7a2e34);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:600; font-size:30px;
+    box-shadow:0 18px 32px -14px rgba(122,46,52,.4);
+  }
+  .voice-hero .name{ font-family:'Fraunces',serif; font-weight:600; font-size:21px; color:var(--ink); margin-top:14px; }
+  .voice-hero .desc{ font-size:12px; color:var(--ink-soft); margin-top:5px; max-width:250px; line-height:1.55; }
+  .voice-hero .tag-row{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; justify-content:center; }
+  .vtag{ font-size:10px; font-weight:700; color:var(--maroon); background:var(--maroon-pale); padding:4px 10px; border-radius:10px; }
+  .voice-actions-row{ display:flex; gap:10px; margin-top:18px; width:100%; }
+  .vact{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:12px 0; border-radius:14px; font-size:12px; font-weight:700; }
+  .vact.primary{ background:var(--maroon); color:#fff; }
+  .vact.secondary{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+
+  .sample-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:14px; margin-top:10px; }
+  .sample-card .lbl{ font-size:11.5px; font-weight:700; color:var(--ink); }
+  .sample-card .txt{ font-family:'Fraunces',serif; font-size:12.5px; color:var(--ink-soft); margin-top:4px; line-height:1.5; }
+  .sample-play-row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .sample-play-btn{ width:32px; height:32px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mini-wave{ flex:1; display:flex; align-items:center; gap:2px; height:20px; }
+  .mini-wave .b{ width:2.5px; border-radius:2px; background:var(--line); }
+  .mini-wave .b.p{ background:var(--gold); }
+
+  .assign-book-row{ display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .assign-book-cover{ width:32px; height:44px; border-radius:6px; flex-shrink:0; }
+  .assign-book-row .t{ font-size:12.5px; font-weight:700; color:var(--ink); flex:1; }
+  .assign-check{ width:20px; height:20px; border-radius:6px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; }
+  .assign-check.on{ background:var(--maroon); border-color:var(--maroon); }
+
+  /* ---------- Pronunciation dictionary ---------- */
+  .add-entry-card{
+    background:var(--surface); border:1.5px dashed var(--line); border-radius:16px; padding:14px; margin-top:14px;
+  }
+  .add-entry-card .lbl{ font-size:10.5px; font-weight:800; color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase; }
+  .field-row{ display:flex; gap:8px; margin-top:10px; }
+  .fake-input{ flex:1; background:var(--surface-alt); border-radius:10px; padding:9px 10px; font-size:12px; color:var(--ink-soft); }
+  .add-entry-btn{ margin-top:10px; background:var(--maroon); color:#fff; font-size:11.5px; font-weight:700; padding:9px 0; border-radius:10px; text-align:center; }
+
+  .dict-entry{ display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line); }
+  .dict-entry .word-block{ flex:1; }
+  .dict-entry .original{ font-size:13px; font-weight:700; color:var(--ink); }
+  .dict-entry .arrow-line{ display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .dict-entry .says{ font-size:11px; color:var(--gold); font-weight:700; font-family:'Fraunces',serif; }
+  .dict-entry .ctx{ font-size:10px; color:var(--ink-faint); margin-top:2px; }
+  .dict-del{ width:28px; height:28px; border-radius:9px; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--ink-faint); flex-shrink:0; }
+
+  /* ---------- Download manager ---------- */
+  .storage-summary{
+    display:flex; gap:14px; margin-top:14px; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; padding:14px;
+  }
+  .storage-ring{ width:56px; height:56px; border-radius:50%; background:conic-gradient(var(--maroon) 0 46%, var(--gold) 46% 63%, var(--line) 63% 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .storage-ring .hole{ width:38px; height:38px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:var(--ink); }
+  .storage-legend{ display:flex; flex-direction:column; gap:5px; justify-content:center; font-size:10.5px; color:var(--ink-soft); }
+  .storage-legend .li{ display:flex; align-items:center; gap:6px; }
+  .storage-legend .dot{ width:7px; height:7px; border-radius:50%; }
+
+  .dl-row{ display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line); }
+  .dl-icon{ width:36px; height:36px; border-radius:10px; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--maroon); flex-shrink:0; }
+  .dl-info{ flex:1; min-width:0; }
+  .dl-info .t{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .dl-progress{ height:4px; border-radius:2px; background:var(--line); margin-top:6px; overflow:hidden; }
+  .dl-progress i{ display:block; height:100%; background:var(--gold); }
+  .dl-info .s{ font-size:10px; color:var(--ink-soft); margin-top:4px; }
+  .dl-action{ width:28px; height:28px; border-radius:50%; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0; }
+  .dl-status-pill{ font-size:9px; font-weight:800; letter-spacing:.03em; padding:3px 8px; border-radius:8px; text-transform:uppercase; flex-shrink:0; }
+  .dl-status-pill.done{ background:var(--green-pale); color:var(--green); }
+  .dl-status-pill.queued{ background:var(--surface-alt); color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Secondary batch</b> — Voice detail/preview, pronunciation dictionary editor, and the download manager. These round out the full screen set for handoff.
+</div>
+
+<div class="row">
+
+  <!-- ============ VOICE DETAIL ============ -->
+  <div class="unit">
+    <div class="unit-label">Voice detail · Preview</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 4 14.5 4 9a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 5.5-8 12-8 12Z" stroke="currentColor" stroke-width="1.8"/></svg></div>
+        </div>
+
+        <div class="voice-hero">
+          <div class="avatar-lg">A</div>
+          <div class="name">Amara</div>
+          <div class="desc">Warm, African-accented narrator with an even, unhurried pace — built for long-form fiction and reflective prose.</div>
+          <div class="tag-row">
+            <div class="vtag">Narrative & Story</div>
+            <div class="vtag">Offline ready</div>
+            <div class="vtag">Female</div>
+          </div>
+          <div class="voice-actions-row">
+            <div class="vact secondary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 4 14.5 4 9a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 5.5-8 12-8 12Z" stroke="currentColor" stroke-width="1.8"/></svg> Favorite</div>
+            <div class="vact primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 4V16M12 16L7 11M12 16L17 11" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20H19" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg> Set as default</div>
+          </div>
+        </div>
+
+        <div class="section-label">Hear how it handles…</div>
+        <div class="sample-card">
+          <div class="lbl">Punctuation & pacing</div>
+          <div class="txt">"Wait —" she said, "you're leaving? Now? After everything?"</div>
+          <div class="sample-play-row">
+            <div class="sample-play-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+            <div class="mini-wave" id="w1"></div>
+          </div>
+        </div>
+        <div class="sample-card">
+          <div class="lbl">Tonal range</div>
+          <div class="txt">The market was calm at dawn. By noon, it was chaos — shouting, bargaining, a stray dog barking at nothing.</div>
+          <div class="sample-play-row">
+            <div class="sample-play-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M8 5L19 12L8 19V5Z" fill="currentColor"/></svg></div>
+            <div class="mini-wave" id="w2"></div>
+          </div>
+        </div>
+
+        <div class="section-label">Assign to a book</div>
+        <div class="assign-book-row">
+          <div class="assign-book-cover" style="background:linear-gradient(150deg,#8a3a3f,#4c1c20);"></div>
+          <div class="t">Le Salon Caramel</div>
+          <div class="assign-check on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="assign-book-row">
+          <div class="assign-book-cover" style="background:linear-gradient(150deg,#c98a2e,#7a5218);"></div>
+          <div class="t">Anatomy of a Prompt</div>
+          <div class="assign-check"></div>
+        </div>
+        <div class="assign-book-row">
+          <div class="assign-book-cover" style="background:linear-gradient(150deg,#4a4266,#241f3d);"></div>
+          <div class="t">Blue Marie (draft)</div>
+          <div class="assign-check"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ PRONUNCIATION DICTIONARY ============ -->
+  <div class="unit">
+    <div class="unit-label">Pronunciation dictionary</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <h1 class="screen-title" style="font-size:22px;">Pronunciations</h1>
+          <div class="icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+
+        <div class="add-entry-card">
+          <div class="lbl">Add an entry</div>
+          <div class="field-row">
+            <div class="fake-input">Word — e.g. "Aïssa"</div>
+          </div>
+          <div class="field-row">
+            <div class="fake-input">Sounds like — e.g. "ah-EE-sah"</div>
+          </div>
+          <div class="add-entry-btn">Add to dictionary</div>
+        </div>
+
+        <div class="section-label">12 custom entries</div>
+
+        <div class="dict-entry">
+          <div class="word-block">
+            <div class="original">Aïssa</div>
+            <div class="arrow-line"><span class="says">ah-EE-sah</span></div>
+            <div class="ctx">Le Salon Caramel</div>
+          </div>
+          <div class="dict-del"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="dict-entry">
+          <div class="word-block">
+            <div class="original">Élias Koné</div>
+            <div class="arrow-line"><span class="says">ay-lee-AHS koh-NAY</span></div>
+            <div class="ctx">Blood of the Plateau</div>
+          </div>
+          <div class="dict-del"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="dict-entry">
+          <div class="word-block">
+            <div class="original">Germain Aka</div>
+            <div class="arrow-line"><span class="says">zher-MAN ah-KAH</span></div>
+            <div class="ctx">Blood of the Plateau</div>
+          </div>
+          <div class="dict-del"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="dict-entry">
+          <div class="word-block">
+            <div class="original">Abidjan</div>
+            <div class="arrow-line"><span class="says">ah-bee-JAHN</span></div>
+            <div class="ctx">Applies to all books</div>
+          </div>
+          <div class="dict-del"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="dict-entry">
+          <div class="word-block">
+            <div class="original">Inès</div>
+            <div class="arrow-line"><span class="says">ee-NESS</span></div>
+            <div class="ctx">Blood of the Plateau</div>
+          </div>
+          <div class="dict-del"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ DOWNLOAD MANAGER ============ -->
+  <div class="unit">
+    <div class="unit-label">Download manager</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="top-row">
+          <h1 class="screen-title" style="font-size:22px;">Downloads</h1>
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg></div>
+        </div>
+
+        <div class="storage-summary">
+          <div class="storage-ring"><div class="hole">1.8GB</div></div>
+          <div class="storage-legend">
+            <div class="li"><span class="dot" style="background:var(--maroon);"></span> Offline books · 1.1 GB</div>
+            <div class="li"><span class="dot" style="background:var(--gold);"></span> Voice packs · 0.5 GB</div>
+            <div class="li"><span class="dot" style="background:var(--line);"></span> 2.2 GB free of 4 GB</div>
+          </div>
+        </div>
+
+        <div class="section-label">In progress</div>
+        <div class="dl-row">
+          <div class="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="dl-info">
+            <div class="t">Kwame — Deep Cinematic (voice)</div>
+            <div class="dl-progress"><i style="width:64%"></i></div>
+            <div class="s">64% · 38 MB of 60 MB</div>
+          </div>
+          <div class="dl-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></div>
+        </div>
+        <div class="dl-row">
+          <div class="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5Z" stroke="currentColor" stroke-width="1.6"/><path d="M13 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5V3Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="dl-info">
+            <div class="t">Blood of the Plateau — offline copy</div>
+            <div class="dl-progress"><i style="width:20%; background:var(--ink-faint);"></i></div>
+            <div class="s">Queued · waiting for Wi-Fi</div>
+          </div>
+          <div class="dl-status-pill queued">Queued</div>
+        </div>
+
+        <div class="section-label">Downloaded</div>
+        <div class="dl-row">
+          <div class="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="dl-info"><div class="t">Amara — Warm Narrative (voice)</div><div class="s">58 MB · downloaded 2 days ago</div></div>
+          <div class="dl-status-pill done">Ready</div>
+        </div>
+        <div class="dl-row">
+          <div class="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2V5Z" stroke="currentColor" stroke-width="1.6"/><path d="M13 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5V3Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="dl-info"><div class="t">Le Salon Caramel — offline copy</div><div class="s">210 MB · downloaded 5 days ago</div></div>
+          <div class="dl-status-pill done">Ready</div>
+        </div>
+        <div class="dl-row">
+          <div class="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 15V9a1 1 0 011-1h3l5-4v16l-5-4H5a1 1 0 01-1-1Z" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="dl-info"><div class="t">Nadia — Clear & Brisk (voice)</div><div class="s">45 MB · downloaded 1 week ago</div></div>
+          <div class="dl-status-pill done">Ready</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+  function buildMini(id, count){
+    const el = document.getElementById(id);
+    if(!el) return;
+    for(let i=0;i<count;i++){
+      const h = 4 + Math.abs(Math.sin(i*0.6))*13;
+      const bar = document.createElement('div');
+      bar.className = 'b' + (i < count*0.35 ? ' p' : '');
+      bar.style.height = Math.round(h) + 'px';
+      el.appendChild(bar);
+    }
+  }
+  buildMini('w1', 34);
+  buildMini('w2', 34);
+</script>
+
+</body>
+</html>

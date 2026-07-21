@@ -1,0 +1,48 @@
+name: dastorytella_reader
+description: "Mobile ebook reader with punctuation-aware, tone-adaptive text-to-speech and offline voice support."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # --- Not yet added; documented here as the anticipated set. ---
+  # Add via `flutter pub add <package>` when each feature is actually built,
+  # rather than pre-installing unused dependencies.
+  #
+  # State management:      riverpod / flutter_riverpod   (see ARCHITECTURE.md §2)
+  # Navigation:             go_router
+  # Audio playback:         just_audio
+  # Offline TTS inference:  sherpa_onnx (or platform-channel bridge)
+  # Backend/auth:           supabase_flutter
+  # Secure storage:         flutter_secure_storage
+  # HTTP:                   http or dio
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Uncomment and populate once font files are added under assets/fonts/
+  # fonts:
+  #   - family: Fraunces
+  #     fonts:
+  #       - asset: assets/fonts/Fraunces-Regular.ttf
+  #       - asset: assets/fonts/Fraunces-SemiBold.ttf
+  #         weight: 600
+  #   - family: Manrope
+  #     fonts:
+  #       - asset: assets/fonts/Manrope-Regular.ttf
+  #       - asset: assets/fonts/Manrope-Bold.ttf
+  #         weight: 700
+
+  # assets:
+  #   - assets/images/

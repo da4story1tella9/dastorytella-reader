@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>daStoryTella's Reader — Core Batch 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F1; --surface:#FFFFFF; --surface-alt:#F2EDE3;
+    --ink:#251D18; --ink-soft:#71675A; --ink-faint:#A79C8C;
+    --line:#EAE3D6; --gold:#C98A2E; --gold-soft:#F0CE95; --gold-pale:#FBEDD3;
+    --maroon:#7A2E34; --maroon-pale:#F5E7E6; --green:#5C8A5C; --green-pale:#E7F0E4;
+    --shadow: rgba(37,29,24,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; background:#EDE7DB; font-family:'Manrope',sans-serif; }
+  body{ display:flex; flex-direction:column; align-items:center; padding:44px 16px 70px; gap:34px; }
+  .intro{ max-width:720px; text-align:center; color:var(--ink-soft); font-size:13px; line-height:1.7; }
+  .intro b{ color:var(--maroon); }
+  .row{ display:flex; gap:26px; overflow-x:auto; padding:10px 10px 20px; max-width:100%; scroll-snap-type:x proximity; }
+  .unit{ display:flex; flex-direction:column; align-items:center; gap:14px; scroll-snap-align:start; }
+  .unit-label{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--maroon); }
+  .phone{ width:340px; height:734px; border-radius:46px; background:#141210; padding:10px; box-shadow: 0 30px 70px -18px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06); flex-shrink:0; }
+  .screen{ width:100%; height:100%; border-radius:38px; overflow:hidden; background:var(--bg); position:relative; display:flex; flex-direction:column; }
+  .statusbar{ display:flex; justify-content:space-between; padding:14px 22px 0; font-size:12px; font-weight:700; color:var(--ink); }
+  .scrollarea{ flex:1; overflow-y:auto; padding:14px 20px 0; }
+  .scrollarea::-webkit-scrollbar{ display:none; }
+  h1.screen-title{ font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:var(--ink); }
+  .icon-btn{ width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .icon-btn.plain{ background:none; border:none; }
+
+  /* ---------- Search ---------- */
+  .search-bar{
+    display:flex; align-items:center; gap:10px; margin-top:8px;
+  }
+  .search-input{
+    flex:1; display:flex; align-items:center; gap:8px; background:var(--surface);
+    border:1px solid var(--line); border-radius:14px; padding:10px 12px;
+  }
+  .search-input input-fake{ font-size:13.5px; color:var(--ink); }
+  .search-input .clear{ margin-left:auto; color:var(--ink-faint); }
+  .section-label{ font-size:10.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin:20px 0 8px 2px; }
+  .result-row{ display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .result-cover{ width:38px; height:52px; border-radius:7px; flex-shrink:0; background:linear-gradient(150deg,#8a3a3f,#4c1c20); }
+  .result-info .t{ font-size:13px; font-weight:700; color:var(--ink); }
+  .result-info .t mark{ background:var(--gold-pale); color:var(--maroon); padding:0 2px; border-radius:3px; }
+  .result-info .s{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
+  .result-chevron{ margin-left:auto; color:var(--ink-faint); }
+  .snippet-row{ padding:10px 4px; border-bottom:1px solid var(--line); }
+  .snippet-row .loc{ font-size:11px; font-weight:700; color:var(--maroon); }
+  .snippet-row .txt{ font-family:'Fraunces',serif; font-size:13px; color:var(--ink-soft); margin-top:4px; line-height:1.5; }
+  .snippet-row .txt mark{ background:var(--gold-pale); color:var(--ink); padding:0 2px; border-radius:3px; font-weight:600; }
+  .web-fallback{
+    margin-top:22px; padding:14px; background:var(--surface-alt); border-radius:14px;
+    display:flex; align-items:center; gap:10px; font-size:12px; color:var(--ink-soft); font-weight:600;
+  }
+
+  /* ---------- Onboarding ---------- */
+  .ob-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:0 30px; text-align:center; }
+  .ob-mark{
+    width:64px; height:64px; border-radius:20px; background:linear-gradient(150deg,var(--gold-soft),var(--maroon));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-weight:700; font-size:26px;
+    margin-bottom:26px; box-shadow:0 16px 30px -12px rgba(122,46,52,.4);
+  }
+  .ob-wrap h1{ font-family:'Fraunces',serif; font-weight:600; font-size:25px; color:var(--ink); line-height:1.3; }
+  .ob-wrap p{ font-size:12.5px; color:var(--ink-soft); margin-top:12px; line-height:1.6; }
+  .ob-cta{
+    margin-top:30px; width:100%; background:var(--maroon); color:#fff; font-weight:700; font-size:13.5px;
+    padding:14px 0; border-radius:16px; text-align:center;
+  }
+  .ob-link{ margin-top:14px; font-size:12px; color:var(--ink-soft); font-weight:600; }
+  .ob-link b{ color:var(--maroon); }
+  .ob-dots{ display:flex; gap:6px; margin-top:32px; }
+  .ob-dots i{ width:6px; height:6px; border-radius:50%; background:var(--line); }
+  .ob-dots i.on{ background:var(--maroon); width:18px; border-radius:4px; }
+
+  /* ---------- Sign in ---------- */
+  .signin-wrap{ padding:20px 4px 0; }
+  .signin-wrap h1{ font-family:'Fraunces',serif; font-weight:600; font-size:24px; color:var(--ink); margin-top:24px; }
+  .signin-wrap p{ font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6; }
+  .auth-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; padding:13px 0; border-radius:14px; font-weight:700; font-size:13px;
+    margin-top:12px;
+  }
+  .auth-btn.apple{ background:#141210; color:#fff; }
+  .auth-btn.google{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .auth-btn.email{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .divider{ display:flex; align-items:center; gap:10px; margin:22px 0; color:var(--ink-faint); font-size:10.5px; font-weight:700; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--line); }
+  .terms{ text-align:center; font-size:10px; color:var(--ink-faint); margin-top:22px; line-height:1.6; }
+  .terms b{ color:var(--maroon); font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Core batch 2 of 2</b> — Search results, onboarding welcome, and sign-in. With this, the full core set (Library, Player, Voices, Import, Settings, Chapter list, Empty state, Search, Onboarding, Sign-in) is locked and ready to hand to Claude Code as the scaffold reference.
+</div>
+
+<div class="row">
+
+  <!-- ============ SEARCH RESULTS ============ -->
+  <div class="unit">
+    <div class="unit-label">Search results</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="search-bar">
+          <div class="icon-btn plain"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="search-input">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="var(--ink-faint)" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="var(--ink-faint)" stroke-width="2" stroke-linecap="round"/></svg>
+            <span style="font-size:13.5px; color:var(--ink); font-weight:600;">salon</span>
+            <span class="clear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></span>
+          </div>
+        </div>
+
+        <div class="section-label">Books</div>
+        <div class="result-row">
+          <div class="result-cover"></div>
+          <div class="result-info">
+            <div class="t">Le <mark>Salon</mark> Caramel</div>
+            <div class="s">Amara · Warm Narrative · 38% complete</div>
+          </div>
+          <div class="result-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2"/></svg></div>
+        </div>
+
+        <div class="section-label">Matching chapters</div>
+        <div class="snippet-row">
+          <div class="loc">Le Salon Caramel · Chapter 3</div>
+          <div class="txt">…the city dissolving into a wash of headlights. Inside, the <mark>Salon</mark> smelled of roasted coffee, and a woman named Aïssa…</div>
+        </div>
+        <div class="snippet-row">
+          <div class="loc">Le Salon Caramel · Chapter 1</div>
+          <div class="txt">He passed the <mark>salon</mark> twice before the rain gave him a reason to go in.</div>
+        </div>
+
+        <div class="section-label">Voices</div>
+        <div style="padding:14px 4px; font-size:12px; color:var(--ink-faint);">No matching voices</div>
+
+        <div class="web-fallback">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Can't find it? Import "salon" from the web →
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ ONBOARDING WELCOME ============ -->
+  <div class="unit">
+    <div class="unit-label">Onboarding · Welcome</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="ob-wrap">
+        <div class="ob-mark">d</div>
+        <h1>Every book,<br/>read the way it deserves.</h1>
+        <p>Upload anything — a novel, a PDF, your own draft — and hear it read back with real tone, real pacing, and voices that don't flatten who's speaking.</p>
+        <div class="ob-cta">Get started</div>
+        <div class="ob-link">Already have an account? <b>Sign in</b></div>
+        <div class="ob-dots"><i class="on"></i><i></i><i></i></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ============ SIGN IN ============ -->
+  <div class="unit">
+    <div class="unit-label">Sign in</div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span>63%</span></div>
+      <div class="scrollarea">
+        <div class="icon-btn plain" style="margin-top:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+        <div class="signin-wrap">
+          <div class="ob-mark" style="margin:0 0 0;">d</div>
+          <h1>Welcome back</h1>
+          <p>Sign in to sync your library, voices, and reading position across devices.</p>
+
+          <div class="auth-btn apple">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M16.4 1.5c.1 1-.3 2-.9 2.7-.6.7-1.6 1.3-2.5 1.2-.1-1 .4-2 1-2.7.6-.7 1.6-1.2 2.4-1.2ZM19.9 17.4c-.4 1-.9 1.9-1.6 2.8-.9 1.2-1.8 2.4-3.2 2.4-1.4 0-1.8-.8-3.4-.8s-2 .8-3.3.8c-1.4 0-2.4-1.3-3.3-2.5-1.9-2.6-3.3-7.3-1.4-10.5.9-1.6 2.6-2.6 4.4-2.6 1.4 0 2.6.9 3.4.9.8 0 2.3-1.1 3.9-1 .7 0 2.5.3 3.7 2-.1.1-2.2 1.3-2.2 3.8 0 3 2.6 4 2.6 4Z"/></svg>
+            Continue with Apple
+          </div>
+          <div class="auth-btn google">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v4h5.6c-.2 1.3-1 2.4-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.7Z"/><path fill="#34A853" d="M12 22c2.8 0 5.1-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7C4.5 19.7 8 22 12 22Z"/><path fill="#FBBC05" d="M6.2 13.6c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V6.9H2.7C2 8.3 1.6 10.1 1.6 12s.4 3.7 1.1 5.1l3.5-2.7Z"/><path fill="#EA4335" d="M12 6.1c1.5 0 2.9.5 4 1.5l3-3C17.1 2.9 14.8 2 12 2 8 2 4.5 4.3 2.7 7.7l3.5 2.7c.8-2.5 3.1-4.3 5.8-4.3Z"/></svg>
+            Continue with Google
+          </div>
+          <div class="auth-btn email">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 7l9 6l9-6" stroke="currentColor" stroke-width="1.6"/></svg>
+            Continue with email
+          </div>
+
+          <div class="divider">OR</div>
+          <div class="ob-link" style="text-align:center;">New here? <b>Create an account</b></div>
+
+          <div class="terms">By continuing, you agree to daStoryTella's <b>Terms</b> and <b>Privacy Policy</b>.</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+</body>
+</html>
