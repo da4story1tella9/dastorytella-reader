@@ -10,13 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../shared_widgets/app_icon_button.dart';
+import '../../../shared_widgets/app_segmented_control.dart';
 import '../models/book.dart';
 import '../models/library_segment.dart';
 import '../state/library_providers.dart';
 import '../widgets/book_card.dart';
-import '../widgets/library_segmented_control.dart';
 import '../widgets/mini_player.dart';
 
 class LibraryScreen extends ConsumerWidget {
@@ -50,9 +50,12 @@ class LibraryScreen extends ConsumerWidget {
                               ),
                               Row(
                                 children: <Widget>[
-                                  _IconButton(icon: Icons.search, onTap: () {}),
+                                  AppIconButton(
+                                    icon: Icons.search,
+                                    onTap: () {},
+                                  ),
                                   const SizedBox(width: 8),
-                                  _IconButton(
+                                  AppIconButton(
                                     icon: Icons.filter_list,
                                     onTap: () {},
                                   ),
@@ -61,8 +64,10 @@ class LibraryScreen extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          LibrarySegmentedControl(
+                          AppSegmentedControl<LibrarySegment>(
+                            options: LibrarySegment.values,
                             selected: segment,
+                            labelBuilder: (LibrarySegment s) => s.label,
                             onChanged: (LibrarySegment value) =>
                                 ref
                                     .read(librarySegmentProvider.notifier)
@@ -122,32 +127,6 @@ class LibraryScreen extends ConsumerWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _IconButton extends StatelessWidget {
-  const _IconButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 36,
-        height: 36,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.line),
-        ),
-        child: Icon(icon, size: 16, color: AppColors.ink),
       ),
     );
   }
