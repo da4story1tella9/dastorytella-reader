@@ -23,6 +23,6 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Settings coming soon.'), findsOneWidget);
+    expect(find.text('Kelechi Omeire'), findsOneWidget);
   });
 }
