@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/book_detail/screens/book_detail_screen.dart';
 import '../../features/library/screens/library_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
@@ -66,6 +67,14 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/player',
         builder: (BuildContext context, GoRouterState state) =>
             const PlayerScreen(),
+      ),
+      // Also root-level (see /player above) — reached from a Library
+      // book card or the Player's chapter header, both full-screen
+      // pushes with no bottom nav.
+      GoRoute(
+        path: '/book',
+        builder: (BuildContext context, GoRouterState state) =>
+            const BookDetailScreen(),
       ),
     ],
   );

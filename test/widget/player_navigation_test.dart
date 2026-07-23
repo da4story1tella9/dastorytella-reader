@@ -1,5 +1,5 @@
-import 'package:dastorytella_reader/features/library/widgets/mini_player.dart';
 import 'package:dastorytella_reader/main.dart';
+import 'package:dastorytella_reader/shared_widgets/mini_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

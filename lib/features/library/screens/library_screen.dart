@@ -13,11 +13,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared_widgets/app_icon_button.dart';
 import '../../../shared_widgets/app_segmented_control.dart';
+import '../../../shared_widgets/mini_player.dart';
 import '../models/book.dart';
 import '../models/library_segment.dart';
 import '../state/library_providers.dart';
 import '../widgets/book_card.dart';
-import '../widgets/mini_player.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
