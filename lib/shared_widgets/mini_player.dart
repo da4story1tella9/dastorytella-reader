@@ -1,5 +1,6 @@
-/// Compact "currently playing" bar pinned above the bottom nav.
-/// Mirrors `.mini-player` in `docs/design-reference/app-mockups-v2.html`.
+/// Compact "currently playing" bar, shown above the bottom nav on
+/// Library and above the transport on Book Detail. Mirrors
+/// `.mini-player` in `docs/design-reference/app-mockups-v2.html`.
 ///
 /// Reads the shared now-playing state (`core/playback/`) so it always
 /// agrees with the full Player screen. Tapping the row opens the
@@ -10,11 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/playback/now_playing_controller.dart';
-import '../../../core/playback/now_playing_state.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/duration_format.dart';
+import '../core/playback/now_playing_controller.dart';
+import '../core/playback/now_playing_state.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_typography.dart';
+import '../core/utils/duration_format.dart';
 
 class MiniPlayer extends ConsumerWidget {
   const MiniPlayer({super.key});

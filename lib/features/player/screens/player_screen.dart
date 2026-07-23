@@ -55,35 +55,38 @@ class PlayerScreen extends ConsumerWidget {
                   onTap: () =>
                       context.canPop() ? context.pop() : context.go('/library'),
                 ),
-                Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          'Chapter ${nowPlaying.track.chapterIndex}',
-                          style: AppTypography.bodyStrong.copyWith(
-                            fontSize: 11,
+                GestureDetector(
+                  onTap: () => context.push('/book'),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'Chapter ${nowPlaying.track.chapterIndex}',
+                            style: AppTypography.bodyStrong.copyWith(
+                              fontSize: 11,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 3),
-                        const Icon(
-                          Icons.keyboard_arrow_down,
-                          size: 14,
-                          color: AppColors.ink,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      'of ${nowPlaying.track.totalChapters} · '
-                      '${nowPlaying.track.bookTitle}',
-                      style: AppTypography.caption.copyWith(
-                        color: AppColors.inkFaint,
-                        fontSize: 10,
+                          const SizedBox(width: 3),
+                          const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 14,
+                            color: AppColors.ink,
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 1),
+                      Text(
+                        'of ${nowPlaying.track.totalChapters} · '
+                        '${nowPlaying.track.bookTitle}',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.inkFaint,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 AppIconButton(icon: Icons.more_horiz, onTap: () {}),
               ],
