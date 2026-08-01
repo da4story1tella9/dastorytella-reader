@@ -1,8 +1,14 @@
 /// Hardcoded "now playing" sample, mirroring the Player screen in
 /// `docs/design-reference/app-mockups-v2.html`.
 ///
-/// Placeholder until the TTS pipeline (ARCHITECTURE.md §3) exists —
-/// no backend calls.
+/// The book/chapter/transcript metadata is a placeholder until the TTS
+/// pipeline (ARCHITECTURE.md §3) exists — no backend calls. Audio
+/// playback itself is real (`just_audio`, see `NowPlayingController`),
+/// backed by a bundled synthetic placeholder tone
+/// (`assets/audio/sample_chapter.wav`) rather than real narration, since
+/// no TTS-generated audio exists yet. Its duration (~30s) is much
+/// shorter than the fictional "Chapter 3 of 18" story this mock data
+/// describes — that mismatch is expected until real audio replaces it.
 library;
 
 import 'package:flutter/material.dart';
@@ -17,7 +23,7 @@ const NowPlayingTrack mockNowPlayingTrack = NowPlayingTrack(
   chapterIndex: 3,
   totalChapters: 18,
   voiceLabel: 'Amara — Warm Narrative',
-  durationSeconds: 38 * 60 + 7,
+  audioAssetPath: 'assets/audio/sample_chapter.wav',
   isDownloaded: true,
   transcript: <TranscriptSentence>[
     TranscriptSentence(
@@ -40,11 +46,3 @@ const NowPlayingTrack mockNowPlayingTrack = NowPlayingTrack(
     ),
   ],
 );
-
-/// Matches the mockup's displayed elapsed time (left side of the
-/// time-row, "14:22") — chosen over the alternative reading because it
-/// lines up with the waveform's hand-set played-bar fraction (15/42 ≈
-/// 0.36 there vs. 862/2287 ≈ 0.38 here). The mini-player's "X left"
-/// label is then derived (duration − position) rather than copied as
-/// a separate hardcoded string, so the two surfaces can't drift.
-const int mockInitialPositionSeconds = 14 * 60 + 22;

@@ -97,7 +97,7 @@ class BookDetailScreen extends ConsumerWidget {
                         subtitle: chapter.index == currentChapterIndex
                             ? '${formatMinutesSeconds(nowPlaying.remainingSeconds)} '
                                   'left of '
-                                  '${formatMinutesSeconds(nowPlaying.track.durationSeconds)}'
+                                  '${formatMinutesSeconds(nowPlaying.durationSeconds)}'
                             : chapter.durationLabel,
                         status: chapter.index < currentChapterIndex
                             ? ChapterRowStatus.done
