@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_typography.dart';
 import '../models/settings_group.dart';
@@ -44,7 +45,10 @@ class SettingsScreen extends StatelessWidget {
             SettingsGroupCard(
               label: 'Storage',
               children: <Widget>[
-                StorageRow(stats: mockStorageStats, onManageTap: () {}),
+                StorageRow(
+                  stats: mockStorageStats,
+                  onManageTap: () => context.push('/downloads'),
+                ),
               ],
             ),
             const SizedBox(height: 22),
