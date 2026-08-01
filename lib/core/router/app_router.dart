@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/book_detail/screens/book_detail_screen.dart';
+import '../../features/download_manager/screens/download_manager_screen.dart';
 import '../../features/library/screens/library_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/pronunciation_dictionary/screens/pronunciation_dictionary_screen.dart';
@@ -76,6 +77,13 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/book',
         builder: (BuildContext context, GoRouterState state) =>
             const BookDetailScreen(),
+      ),
+      // Also root-level (see /player above) — reached from Settings'
+      // storage "Manage" link.
+      GoRoute(
+        path: '/downloads',
+        builder: (BuildContext context, GoRouterState state) =>
+            const DownloadManagerScreen(),
       ),
       // Also root-level (see /player above) — reached from Settings'
       // "Pronunciation dictionary" row.

@@ -65,7 +65,10 @@ class SettingsScreen extends ConsumerWidget {
             SettingsGroupCard(
               label: 'Storage',
               children: <Widget>[
-                StorageRow(stats: mockStorageStats, onManageTap: () {}),
+                StorageRow(
+                  stats: mockStorageStats,
+                  onManageTap: () => context.push('/downloads'),
+                ),
               ],
             ),
             const SizedBox(height: 22),
