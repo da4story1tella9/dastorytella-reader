@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/book_detail/screens/book_detail_screen.dart';
 import '../../features/library/screens/library_screen.dart';
 import '../../features/player/screens/player_screen.dart';
+import '../../features/pronunciation_dictionary/screens/pronunciation_dictionary_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
 import 'app_shell.dart';
@@ -75,6 +76,13 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/book',
         builder: (BuildContext context, GoRouterState state) =>
             const BookDetailScreen(),
+      ),
+      // Also root-level (see /player above) — reached from Settings'
+      // "Pronunciation dictionary" row.
+      GoRoute(
+        path: '/pronunciations',
+        builder: (BuildContext context, GoRouterState state) =>
+            const PronunciationDictionaryScreen(),
       ),
     ],
   );

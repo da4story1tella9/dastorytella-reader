@@ -42,10 +42,11 @@ final List<SettingsGroup> mockSettingsGroups = <SettingsGroup>[
         subtitle: 'Default for new sessions',
         value: '1.0×',
       ),
+      // No subtitle here — SettingsScreen overrides it with the live
+      // entry count from pronunciationEntriesProvider.
       SettingsItem(
         icon: Icons.notes_outlined,
         title: 'Pronunciation dictionary',
-        subtitle: '12 custom entries',
       ),
     ],
   ),
