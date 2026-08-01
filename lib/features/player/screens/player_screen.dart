@@ -39,8 +39,9 @@ class PlayerScreen extends ConsumerWidget {
       nowPlayingProvider.notifier,
     );
     final PlayerTab tab = ref.watch(playerTabProvider);
-    final double playedFraction =
-        nowPlaying.positionSeconds / nowPlaying.track.durationSeconds;
+    final double playedFraction = nowPlaying.durationSeconds == 0
+        ? 0
+        : nowPlaying.positionSeconds / nowPlaying.durationSeconds;
 
     return Scaffold(
       body: SafeArea(
@@ -201,7 +202,7 @@ class PlayerScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  formatMinutesSeconds(nowPlaying.track.durationSeconds),
+                  formatMinutesSeconds(nowPlaying.durationSeconds),
                   style: AppTypography.caption.copyWith(
                     color: AppColors.inkFaint,
                     fontSize: 10.5,
@@ -217,46 +218,65 @@ class PlayerScreen extends ConsumerWidget {
               onSkipForward: () => controller.skip(15),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              height: 38,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(right: 20),
-                children: <Widget>[
-                  FunctionChip(
-                    label: '${nowPlaying.speed}× Speed',
-                    onTap: controller.cycleSpeed,
+            // Centered when the chips fit the available width (desktop/
+            // wide viewports), scrollable and left-starting when they
+            // don't (narrow phone frames) — a plain horizontal ListView
+            // always left-aligns, which looked off-center under the
+            // already-centered transport controls above on wide screens.
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return SizedBox(
+                  height: 38,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const SizedBox(width: 20),
+                          FunctionChip(
+                            label: '${nowPlaying.speed}× Speed',
+                            onTap: controller.cycleSpeed,
+                          ),
+                          const SizedBox(width: 8),
+                          FunctionChip(
+                            icon: Icons.download_done,
+                            label: 'Downloaded',
+                            active: nowPlaying.track.isDownloaded,
+                            onTap: () {},
+                          ),
+                          const SizedBox(width: 8),
+                          FunctionChip(
+                            icon: Icons.timer_outlined,
+                            label: 'Sleep: ${nowPlaying.sleepTimerLabel}',
+                            onTap: controller.cycleSleepTimer,
+                          ),
+                          const SizedBox(width: 8),
+                          FunctionChip(
+                            icon: nowPlaying.isBookmarked
+                                ? Icons.star
+                                : Icons.star_border,
+                            label: 'Bookmark',
+                            active: nowPlaying.isBookmarked,
+                            onTap: controller.toggleBookmark,
+                          ),
+                          const SizedBox(width: 8),
+                          FunctionChip(
+                            icon: Icons.ios_share,
+                            label: 'Share',
+                            onTap: () {},
+                          ),
+                          const SizedBox(width: 20),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  FunctionChip(
-                    icon: Icons.download_done,
-                    label: 'Downloaded',
-                    active: nowPlaying.track.isDownloaded,
-                    onTap: () {},
-                  ),
-                  const SizedBox(width: 8),
-                  FunctionChip(
-                    icon: Icons.timer_outlined,
-                    label: 'Sleep: ${nowPlaying.sleepTimerLabel}',
-                    onTap: controller.cycleSleepTimer,
-                  ),
-                  const SizedBox(width: 8),
-                  FunctionChip(
-                    icon: nowPlaying.isBookmarked
-                        ? Icons.star
-                        : Icons.star_border,
-                    label: 'Bookmark',
-                    active: nowPlaying.isBookmarked,
-                    onTap: controller.toggleBookmark,
-                  ),
-                  const SizedBox(width: 8),
-                  FunctionChip(
-                    icon: Icons.ios_share,
-                    label: 'Share',
-                    onTap: () {},
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
