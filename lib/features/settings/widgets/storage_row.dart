@@ -62,8 +62,7 @@ class StorageRow extends StatelessWidget {
                       child: const ColoredBox(color: AppColors.gold),
                     ),
                     Expanded(
-                      flex:
-                          1000 -
+                      flex: 1000 -
                           (stats.booksFraction * 1000).round() -
                           (stats.voicesFraction * 1000).round(),
                       child: const ColoredBox(color: AppColors.line),
