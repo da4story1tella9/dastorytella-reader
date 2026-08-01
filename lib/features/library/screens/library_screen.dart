@@ -18,6 +18,7 @@ import '../models/book.dart';
 import '../models/library_segment.dart';
 import '../state/library_providers.dart';
 import '../widgets/book_card.dart';
+import '../widgets/empty_library_state.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
@@ -76,50 +77,71 @@ class LibraryScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-                    sliver: SliverLayoutBuilder(
-                      builder:
-                          (BuildContext context, SliverConstraints constraints) {
-                            const int crossAxisCount = 2;
-                            const double crossAxisSpacing = 16;
-                            const double coverAspectRatio = 3 / 4.3;
-                            // Space below the cover for title + byline +
-                            // progress bar (see BookCard) — a fixed aspect
-                            // ratio for the whole cell can't fit both a
-                            // width-scaled cover and fixed-height text, so
-                            // this is computed rather than guessed.
-                            const double metaBlockHeight = 58;
-                            final double cellWidth =
-                                (constraints.crossAxisExtent -
-                                    crossAxisSpacing) /
-                                crossAxisCount;
-                            final double cellHeight =
-                                cellWidth / coverAspectRatio + metaBlockHeight;
-                            return SliverGrid(
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: crossAxisCount,
-                                    mainAxisSpacing: 16,
-                                    crossAxisSpacing: crossAxisSpacing,
-                                    mainAxisExtent: cellHeight,
-                                  ),
-                              delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) =>
-                                    BookCard(book: books[index]),
-                                childCount: books.length,
-                              ),
-                            );
-                          },
+                  if (books.isEmpty)
+                    SliverToBoxAdapter(
+                      child: EmptyLibraryState(
+                        title: segment == LibrarySegment.saved
+                            ? 'Your library is empty'
+                            : 'No ${segment.label.toLowerCase()} yet',
+                        body: segment == LibrarySegment.saved
+                            ? 'Add a book, article, or draft to hear it '
+                                  'read back to you — in whichever voice '
+                                  'fits the mood.'
+                            : 'Books you add to ${segment.label.toLowerCase()} '
+                                  'will show up here.',
+                        showImportCta: segment == LibrarySegment.saved,
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+                      sliver: SliverLayoutBuilder(
+                        builder:
+                            (
+                              BuildContext context,
+                              SliverConstraints constraints,
+                            ) {
+                              const int crossAxisCount = 2;
+                              const double crossAxisSpacing = 16;
+                              const double coverAspectRatio = 3 / 4.3;
+                              // Space below the cover for title + byline +
+                              // progress bar (see BookCard) — a fixed aspect
+                              // ratio for the whole cell can't fit both a
+                              // width-scaled cover and fixed-height text, so
+                              // this is computed rather than guessed.
+                              const double metaBlockHeight = 58;
+                              final double cellWidth =
+                                  (constraints.crossAxisExtent -
+                                      crossAxisSpacing) /
+                                  crossAxisCount;
+                              final double cellHeight =
+                                  cellWidth / coverAspectRatio +
+                                  metaBlockHeight;
+                              return SliverGrid(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      mainAxisSpacing: 16,
+                                      crossAxisSpacing: crossAxisSpacing,
+                                      mainAxisExtent: cellHeight,
+                                    ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) =>
+                                      BookCard(book: books[index]),
+                                  childCount: books.length,
+                                ),
+                              );
+                            },
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10),
-              child: MiniPlayer(),
-            ),
+            if (books.isNotEmpty)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: MiniPlayer(),
+              ),
           ],
         ),
       ),

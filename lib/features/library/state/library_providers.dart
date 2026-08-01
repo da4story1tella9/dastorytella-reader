@@ -10,6 +10,12 @@ import 'mock_library_data.dart';
 final StateProvider<LibrarySegment> librarySegmentProvider =
     StateProvider<LibrarySegment>((Ref ref) => LibrarySegment.saved);
 
-final Provider<List<Book>> libraryBooksProvider = Provider<List<Book>>(
-  (Ref ref) => mockBooks,
-);
+/// Collections/Archive are genuinely empty for a new user in this mock
+/// data — that's what makes the empty-library state (batch1 mockup)
+/// reachable without a fake dev toggle.
+final Provider<List<Book>> libraryBooksProvider = Provider<List<Book>>((
+  Ref ref,
+) {
+  final LibrarySegment segment = ref.watch(librarySegmentProvider);
+  return segment == LibrarySegment.saved ? mockBooks : const <Book>[];
+});
