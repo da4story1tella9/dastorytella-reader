@@ -12,6 +12,7 @@ class Voice {
     required this.avatarGradient,
     required this.tags,
     required this.isOfflineReady,
+    required this.description,
   });
 
   final String id;
@@ -22,4 +23,7 @@ class Voice {
   /// e.g. "Warm, African-accented · Narrative & Story"
   final String tags;
   final bool isOfflineReady;
+
+  /// Longer-form sentence shown on the voice detail screen's hero.
+  final String description;
 }

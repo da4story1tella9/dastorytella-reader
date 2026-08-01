@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -21,69 +22,74 @@ class VoiceCard extends StatelessWidget {
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.line)),
       ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 46,
-            height: 46,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: voice.avatarGradient,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => context.push('/voice/${voice.id}'),
+        child: Row(
+          children: <Widget>[
+            Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: voice.avatarGradient,
+                ),
+              ),
+              child: Text(
+                voice.avatarInitial,
+                style: AppTypography.bookTitle.copyWith(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
               ),
             ),
-            child: Text(
-              voice.avatarInitial,
-              style: AppTypography.bookTitle.copyWith(
-                color: Colors.white,
-                fontSize: 15,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(
-                      voice.name,
-                      style: AppTypography.bodyStrong.copyWith(fontSize: 13.5),
-                    ),
-                    if (voice.isOfflineReady) ...<Widget>[
-                      const SizedBox(width: 6),
-                      const _OfflinePill(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        voice.name,
+                        style:
+                            AppTypography.bodyStrong.copyWith(fontSize: 13.5),
+                      ),
+                      if (voice.isOfflineReady) ...<Widget>[
+                        const SizedBox(width: 6),
+                        const _OfflinePill(),
+                      ],
                     ],
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  voice.tags,
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.inkSoft,
-                    fontSize: 11,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 2),
+                  Text(
+                    voice.tags,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.inkSoft,
+                      fontSize: 11,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
-          _VoiceActionButton(icon: Icons.play_arrow_rounded, onTap: () {}),
-          const SizedBox(width: 6),
-          _VoiceActionButton(
-            icon: voice.isOfflineReady
-                ? Icons.check_rounded
-                : Icons.download_rounded,
-            onTap: () {},
-          ),
-        ],
+            const SizedBox(width: 6),
+            _VoiceActionButton(icon: Icons.play_arrow_rounded, onTap: () {}),
+            const SizedBox(width: 6),
+            _VoiceActionButton(
+              icon: voice.isOfflineReady
+                  ? Icons.check_rounded
+                  : Icons.download_rounded,
+              onTap: () {},
+            ),
+          ],
+        ),
       ),
     );
   }

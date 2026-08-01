@@ -12,6 +12,7 @@ import '../../features/book_detail/screens/book_detail_screen.dart';
 import '../../features/library/screens/library_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../features/voice_detail/screens/voice_detail_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
 import 'app_shell.dart';
 
@@ -75,6 +76,13 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/book',
         builder: (BuildContext context, GoRouterState state) =>
             const BookDetailScreen(),
+      ),
+      // Also root-level (see /player above) — reached from a Voices
+      // card tap.
+      GoRoute(
+        path: '/voice/:voiceId',
+        builder: (BuildContext context, GoRouterState state) =>
+            VoiceDetailScreen(voiceId: state.pathParameters['voiceId']!),
       ),
     ],
   );
