@@ -68,11 +68,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Future<void> _submit() async {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text;
+    final AuthController controller = ref.read(authControllerProvider.notifier);
+
     if (email.isEmpty || password.isEmpty) {
+      final String message = switch (email.isEmpty) {
+        true when password.isEmpty => 'Enter your email and password.',
+        true => 'Enter your email.',
+        false => 'Enter your password.',
+      };
+      controller.reportValidationError(message);
       return;
     }
 
-    final AuthController controller = ref.read(authControllerProvider.notifier);
     final AuthResult result = _isSignIn
         ? await controller.signIn(email: email, password: password)
         : await controller.signUp(email: email, password: password);

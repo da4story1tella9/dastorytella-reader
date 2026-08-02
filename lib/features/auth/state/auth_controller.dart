@@ -55,6 +55,13 @@ class AuthController extends Notifier<AuthFormState> {
       return AuthResult.failure;
     }
   }
+
+  /// For a form-level problem caught before any Supabase call is even
+  /// made (e.g. an empty field) — reuses the same error slot as a
+  /// failed sign-in/sign-up so the UI only needs one error display.
+  void reportValidationError(String message) {
+    state = AuthFormState(errorMessage: message);
+  }
 }
 
 const String _genericErrorMessage = 'Something went wrong. Please try again.';
