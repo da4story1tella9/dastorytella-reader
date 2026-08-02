@@ -1,6 +1,11 @@
 /// Brand mark — the "d" logotype. Mirrors `.ob-mark` in
 /// `docs/design-reference/app-mockups-core-batch2.html`, used on both
-/// Onboarding and Sign In.
+/// Onboarding and Sign In/Sign Up.
+///
+/// Placeholder text mark until a real logo asset is provided — swap
+/// the `Text('d', ...)` below for an `Image`/`SvgPicture` then; the
+/// `size`-driven width/height stays the same either way, so callers
+/// won't need to change.
 library;
 
 import 'package:flutter/material.dart';

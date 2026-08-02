@@ -56,24 +56,27 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: InkWell(
-                    onTap: () => context.go('/library'),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.maroon,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        'Get started',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.bodyStrong.copyWith(
-                          color: Colors.white,
-                          fontSize: 13.5,
-                        ),
+                // Fixed/content-sized, not full-width — the mockup's CSS
+                // makes this span 100%, but a full-bleed CTA looked wrong
+                // in practice (per review) once built and seen live.
+                InkWell(
+                  onTap: () => context.push('/sign-up'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 48,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.maroon,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'Get started',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyStrong.copyWith(
+                        color: Colors.white,
+                        fontSize: 13.5,
                       ),
                     ),
                   ),

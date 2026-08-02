@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/models/auth_mode.dart';
+import '../../features/auth/screens/auth_screen.dart';
 import '../../features/book_detail/screens/book_detail_screen.dart';
 import '../../features/download_manager/screens/download_manager_screen.dart';
 import '../../features/library/screens/library_screen.dart';
@@ -15,9 +17,9 @@ import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/pronunciation_dictionary/screens/pronunciation_dictionary_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
-import '../../features/sign_in/screens/sign_in_screen.dart';
 import '../../features/voice_detail/screens/voice_detail_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
+import '../../shared_widgets/coming_soon_screen.dart';
 import 'app_shell.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -114,7 +116,28 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(
         path: '/sign-in',
         builder: (BuildContext context, GoRouterState state) =>
-            const SignInScreen(),
+            const AuthScreen(mode: AuthMode.signIn),
+      ),
+      // Also root-level (see /player above) — reached from Onboarding's
+      // "Get started" and the sign-in screen's "Create an account"
+      // link.
+      GoRoute(
+        path: '/sign-up',
+        builder: (BuildContext context, GoRouterState state) =>
+            const AuthScreen(mode: AuthMode.signUp),
+      ),
+      // Also root-level (see /player above) — reached from the auth
+      // screens' footer. No real legal content yet — see
+      // ComingSoonScreen.
+      GoRoute(
+        path: '/terms',
+        builder: (BuildContext context, GoRouterState state) =>
+            const ComingSoonScreen(title: 'Terms of Service'),
+      ),
+      GoRoute(
+        path: '/privacy-policy',
+        builder: (BuildContext context, GoRouterState state) =>
+            const ComingSoonScreen(title: 'Privacy Policy'),
       ),
     ],
   );
