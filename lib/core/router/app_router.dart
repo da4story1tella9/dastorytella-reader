@@ -13,6 +13,7 @@ import '../../features/download_manager/screens/download_manager_screen.dart';
 import '../../features/library/screens/library_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/pronunciation_dictionary/screens/pronunciation_dictionary_screen.dart';
+import '../../features/search/screens/search_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../features/voice_detail/screens/voice_detail_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
@@ -99,6 +100,13 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/pronunciations',
         builder: (BuildContext context, GoRouterState state) =>
             const PronunciationDictionaryScreen(),
+      ),
+      // Also root-level (see /player above) — reached from the search
+      // icon on Library and Voices.
+      GoRoute(
+        path: '/search',
+        builder: (BuildContext context, GoRouterState state) =>
+            const SearchScreen(),
       ),
     ],
   );

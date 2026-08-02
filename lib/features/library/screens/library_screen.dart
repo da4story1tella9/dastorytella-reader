@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_typography.dart';
 import '../../../shared_widgets/app_icon_button.dart';
@@ -52,7 +53,7 @@ class LibraryScreen extends ConsumerWidget {
                                 children: <Widget>[
                                   AppIconButton(
                                     icon: Icons.search,
-                                    onTap: () {},
+                                    onTap: () => context.push('/search'),
                                   ),
                                   const SizedBox(width: 8),
                                   AppIconButton(
@@ -68,10 +69,9 @@ class LibraryScreen extends ConsumerWidget {
                             options: LibrarySegment.values,
                             selected: segment,
                             labelBuilder: (LibrarySegment s) => s.label,
-                            onChanged: (LibrarySegment value) =>
-                                ref
-                                    .read(librarySegmentProvider.notifier)
-                                    .state = value,
+                            onChanged: (LibrarySegment value) => ref
+                                .read(librarySegmentProvider.notifier)
+                                .state = value,
                           ),
                         ],
                       ),
@@ -85,10 +85,10 @@ class LibraryScreen extends ConsumerWidget {
                             : 'No ${segment.label.toLowerCase()} yet',
                         body: segment == LibrarySegment.saved
                             ? 'Add a book, article, or draft to hear it '
-                                  'read back to you — in whichever voice '
-                                  'fits the mood.'
+                                'read back to you — in whichever voice '
+                                'fits the mood.'
                             : 'Books you add to ${segment.label.toLowerCase()} '
-                                  'will show up here.',
+                                'will show up here.',
                         showImportCta: segment == LibrarySegment.saved,
                       ),
                     )
@@ -96,42 +96,39 @@ class LibraryScreen extends ConsumerWidget {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
                       sliver: SliverLayoutBuilder(
-                        builder:
-                            (
-                              BuildContext context,
-                              SliverConstraints constraints,
-                            ) {
-                              const int crossAxisCount = 2;
-                              const double crossAxisSpacing = 16;
-                              const double coverAspectRatio = 3 / 4.3;
-                              // Space below the cover for title + byline +
-                              // progress bar (see BookCard) — a fixed aspect
-                              // ratio for the whole cell can't fit both a
-                              // width-scaled cover and fixed-height text, so
-                              // this is computed rather than guessed.
-                              const double metaBlockHeight = 58;
-                              final double cellWidth =
-                                  (constraints.crossAxisExtent -
-                                      crossAxisSpacing) /
+                        builder: (
+                          BuildContext context,
+                          SliverConstraints constraints,
+                        ) {
+                          const int crossAxisCount = 2;
+                          const double crossAxisSpacing = 16;
+                          const double coverAspectRatio = 3 / 4.3;
+                          // Space below the cover for title + byline +
+                          // progress bar (see BookCard) — a fixed aspect
+                          // ratio for the whole cell can't fit both a
+                          // width-scaled cover and fixed-height text, so
+                          // this is computed rather than guessed.
+                          const double metaBlockHeight = 58;
+                          final double cellWidth =
+                              (constraints.crossAxisExtent - crossAxisSpacing) /
                                   crossAxisCount;
-                              final double cellHeight =
-                                  cellWidth / coverAspectRatio +
-                                  metaBlockHeight;
-                              return SliverGrid(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossAxisCount,
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: crossAxisSpacing,
-                                      mainAxisExtent: cellHeight,
-                                    ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (BuildContext context, int index) =>
-                                      BookCard(book: books[index]),
-                                  childCount: books.length,
-                                ),
-                              );
-                            },
+                          final double cellHeight =
+                              cellWidth / coverAspectRatio + metaBlockHeight;
+                          return SliverGrid(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: crossAxisSpacing,
+                              mainAxisExtent: cellHeight,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (BuildContext context, int index) =>
+                                  BookCard(book: books[index]),
+                              childCount: books.length,
+                            ),
+                          );
+                        },
                       ),
                     ),
                 ],

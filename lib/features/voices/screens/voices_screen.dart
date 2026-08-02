@@ -11,6 +11,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_typography.dart';
 import '../../../shared_widgets/app_chip.dart';
@@ -44,7 +45,10 @@ class VoicesScreen extends ConsumerWidget {
                 const Text('Voices', style: AppTypography.screenTitle),
                 Row(
                   children: <Widget>[
-                    AppIconButton(icon: Icons.search, onTap: () {}),
+                    AppIconButton(
+                      icon: Icons.search,
+                      onTap: () => context.push('/search'),
+                    ),
                     const SizedBox(width: 8),
                     AppIconButton(icon: Icons.filter_list, onTap: () {}),
                   ],
