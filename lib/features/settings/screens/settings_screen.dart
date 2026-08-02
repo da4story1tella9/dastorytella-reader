@@ -75,8 +75,13 @@ class SettingsScreen extends ConsumerWidget {
             SettingsGroupCard(
               label: account.label,
               children: <Widget>[
-                for (final item in account.items)
-                  SettingsRow(item: item, onTap: () {}),
+                for (final SettingsItem item in account.items)
+                  SettingsRow(
+                    item: item,
+                    onTap: item.title == 'Log out'
+                        ? () => context.go('/onboarding')
+                        : () {},
+                  ),
               ],
             ),
           ],

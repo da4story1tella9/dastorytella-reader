@@ -64,6 +64,11 @@ final List<SettingsGroup> mockSettingsGroups = <SettingsGroup>[
         subtitle: 'Last synced 2 mins ago',
       ),
       SettingsItem(icon: Icons.privacy_tip_outlined, title: 'Privacy & data'),
+      // Not in the batch1 mockup — added so Onboarding/Sign In have a
+      // real in-app entry point (otherwise only reachable by direct
+      // route navigation). Doesn't actually clear any session state —
+      // there's no auth session yet (ARCHITECTURE.md §1) to clear.
+      SettingsItem(icon: Icons.logout, title: 'Log out'),
     ],
   ),
 ];
