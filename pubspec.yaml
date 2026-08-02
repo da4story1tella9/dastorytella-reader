@@ -21,14 +21,18 @@ dependencies:
   # (ARCHITECTURE.md §3) produces real narration audio.
   just_audio: ^0.9.40
 
+  # Auth (core/config/supabase_config.dart, ADR-0006) — talks directly
+  # to Supabase for email/password sign-in/up. Session persistence is
+  # handled internally by this package (secure local storage), so no
+  # separate flutter_secure_storage dependency is needed for that.
+  supabase_flutter: ^2.8.0
+
   # --- Not yet added; documented here as the anticipated set. ---
   # Add via `flutter pub add <package>` when each feature is actually built,
   # rather than pre-installing unused dependencies.
   #
   # Offline TTS inference:  sherpa_onnx (or platform-channel bridge)
-  # Backend/auth:           supabase_flutter
-  # Secure storage:         flutter_secure_storage
-  # HTTP:                   http or dio
+  # HTTP (non-Supabase):    http or dio
 
 dev_dependencies:
   flutter_test:

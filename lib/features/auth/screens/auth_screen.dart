@@ -4,12 +4,17 @@
 /// [AuthMode]s (a common real-world pattern; only the headline,
 /// subtext, and bottom cross-link change).
 ///
-/// No real OAuth/email auth exists yet (ARCHITECTURE.md §1) — tapping
-/// any of the three provider buttons just proceeds into the app.
-/// That's a deliberate simplification, not a bug: the whole app
-/// currently has no auth gate at all (see OnboardingScreen's doc
-/// comment), so there's nothing real for these buttons to connect to
-/// yet beyond "continue".
+/// Deliberate deviation from the mockup: it renders "Continue with
+/// email" as a fourth static button, same as Apple/Google. There's no
+/// real form behind it, since the mockup set never designed one. Same
+/// precedent as `AddEntryCard` (real text fields where the mockup only
+/// had static "fake-input" boxes) — real auth needs a real form, so
+/// this replaces that button with actual email/password fields wired
+/// to Supabase (see docs/adr/0006-mobile-supabase-auth.md). Apple and
+/// Google stay as the mockup drew them, but now correctly say they're
+/// not set up yet instead of silently pretending to sign in — leaving
+/// them faking success would be misleading once a real path exists
+/// right next to them on the same screen.
 ///
 /// Uses `SingleChildScrollView` + `Column`, not `ListView` — a plain
 /// `ListView` forces its direct children to a tight full-width cross-
@@ -19,6 +24,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -26,13 +32,77 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared_widgets/app_icon_button.dart';
 import '../../../shared_widgets/app_mark.dart';
 import '../models/auth_mode.dart';
+import '../state/auth_controller.dart';
+import '../state/auth_form_state.dart';
+import '../state/auth_result.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({required this.mode, super.key});
 
   final AuthMode mode;
 
-  bool get _isSignIn => mode == AuthMode.signIn;
+  @override
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends ConsumerState<AuthScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  bool get _isSignIn => widget.mode == AuthMode.signIn;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _showNotSetUpYet(String provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Sign in with $provider isn\'t set up yet.')),
+    );
+  }
+
+  Future<void> _submit() async {
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text;
+    final AuthController controller = ref.read(authControllerProvider.notifier);
+
+    if (email.isEmpty || password.isEmpty) {
+      final String message = switch (email.isEmpty) {
+        true when password.isEmpty => 'Enter your email and password.',
+        true => 'Enter your email.',
+        false => 'Enter your password.',
+      };
+      controller.reportValidationError(message);
+      return;
+    }
+
+    final AuthResult result = _isSignIn
+        ? await controller.signIn(email: email, password: password)
+        : await controller.signUp(email: email, password: password);
+
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case AuthResult.signedIn:
+        context.go('/library');
+      case AuthResult.confirmationRequired:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Check your email to confirm your account, then sign in.',
+            ),
+          ),
+        );
+        context.go('/sign-in');
+      case AuthResult.failure:
+        break; // Error is shown inline below the form.
+    }
+  }
 
   static final TextStyle _termsTextStyle = AppTypography.caption.copyWith(
     color: AppColors.inkFaint,
@@ -50,6 +120,13 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isSubmitting = ref.watch(
+      authControllerProvider.select((AuthFormState s) => s.isSubmitting),
+    );
+    final String? errorMessage = ref.watch(
+      authControllerProvider.select((AuthFormState s) => s.errorMessage),
+    );
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -90,7 +167,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               // IntrinsicWidth (not each button's own natural width) so
-              // the three end up aligned to the widest label rather
+              // the two end up aligned to the widest label rather
               // than each hugging its own, different-length text —
               // compact as a group, not full-bleed, per review.
               IntrinsicWidth(
@@ -102,7 +179,7 @@ class AuthScreen extends StatelessWidget {
                       label: 'Continue with Apple',
                       background: const Color(0xFF141210),
                       foreground: Colors.white,
-                      onTap: () => context.go('/library'),
+                      onTap: () => _showNotSetUpYet('Apple'),
                     ),
                     const SizedBox(height: 10),
                     _AuthButton(
@@ -111,16 +188,7 @@ class AuthScreen extends StatelessWidget {
                       background: AppColors.surface,
                       foreground: AppColors.ink,
                       bordered: true,
-                      onTap: () => context.go('/library'),
-                    ),
-                    const SizedBox(height: 10),
-                    _AuthButton(
-                      icon: Icons.mail_outline,
-                      label: 'Continue with email',
-                      background: AppColors.surface,
-                      foreground: AppColors.ink,
-                      bordered: true,
-                      onTap: () => context.go('/library'),
+                      onTap: () => _showNotSetUpYet('Google'),
                     ),
                   ],
                 ),
@@ -140,6 +208,85 @@ class AuthScreen extends StatelessWidget {
                   ),
                   const Expanded(child: Divider(color: AppColors.line)),
                 ],
+              ),
+              const SizedBox(height: 18),
+              _AuthTextField(
+                controller: _emailController,
+                hint: 'Email',
+                icon: Icons.mail_outline,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 10),
+              _AuthTextField(
+                controller: _passwordController,
+                hint: 'Password',
+                icon: Icons.lock_outline,
+                obscureText: _obscurePassword,
+                onSubmitted: (_) => _submit(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 18,
+                    color: AppColors.inkFaint,
+                  ),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
+              if (errorMessage != null) ...<Widget>[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorPale,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    errorMessage,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 14),
+              InkWell(
+                onTap: isSubmitting ? null : _submit,
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.maroon,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          _isSignIn ? 'Sign in' : 'Create account',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyStrong.copyWith(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
+                ),
               ),
               const SizedBox(height: 22),
               Center(
@@ -242,6 +389,60 @@ class _AuthButton extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthTextField extends StatelessWidget {
+  const _AuthTextField({
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.obscureText = false,
+    this.keyboardType,
+    this.suffixIcon,
+    this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String hint;
+  final IconData icon;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final Widget? suffixIcon;
+  final ValueChanged<String>? onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        onSubmitted: onSubmitted,
+        style: AppTypography.body.copyWith(color: AppColors.ink, fontSize: 13),
+        decoration: InputDecoration(
+          isDense: true,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 13,
+          ),
+          prefixIcon: Icon(icon, size: 17, color: AppColors.inkFaint),
+          prefixIconConstraints: const BoxConstraints(minWidth: 38),
+          suffixIcon: suffixIcon,
+          hintText: hint,
+          hintStyle: AppTypography.body.copyWith(
+            color: AppColors.inkSoft,
+            fontSize: 13,
+          ),
         ),
       ),
     );

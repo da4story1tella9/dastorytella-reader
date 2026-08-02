@@ -41,4 +41,8 @@ class AppColors {
   static const Color greenPale = Color(0xFFE7F0E4);
   static const Color blue = Color(0xFF4A6FA5);
   static const Color bluePale = Color(0xFFE9EFF7);
+  // Deliberately distinct from `maroon` (a primary-action/brand
+  // color) so an error message is never mistaken for a CTA.
+  static const Color error = Color(0xFFB3423A);
+  static const Color errorPale = Color(0xFFF6E6E4);
 }
