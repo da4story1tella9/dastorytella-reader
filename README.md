@@ -6,7 +6,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Full mockup set built** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable: Library, Voices, Settings, Player, Book Detail / Chapters, Voice Detail, Pronunciation Dictionary, Download Manager, Search, Empty Library State, Onboarding, and Sign In / Sign Up. Playback is real (`just_audio`), currently driving a bundled placeholder tone since no TTS-generated narration exists yet. No backend, no persisted auth/session state — that's next.
+🚧 **Real Supabase auth wired up** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable: Library, Voices, Settings, Player, Book Detail / Chapters, Voice Detail, Pronunciation Dictionary, Download Manager, Search, Empty Library State, Onboarding, and Sign In / Sign Up. Sign In / Sign Up now do real email/password auth against a live Supabase project (see ADR-0006); Apple/Google are still placeholders. Playback is real (`just_audio`), currently driving a bundled placeholder tone since no TTS-generated narration exists yet. No app-wide auth gate yet, and library/voice data is still all mock — that's next.
 
 ## Tech Stack
 
@@ -14,7 +14,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 |---|---|---|
 | Frontend | Flutter (Dart) | Single codebase for iOS + Android; mature audio plugin ecosystem |
 | Backend | FastAPI | Proxies all TTS calls (never expose API keys client-side); familiar from BetIQ |
-| Database / Sync | Supabase (Postgres) | Auth, library sync, familiar from BetIQ |
+| Database / Sync | Supabase (Postgres) | Auth wired up (email/password, ADR-0006); library sync planned |
 | Cloud TTS | Azure Cognitive Services, ElevenLabs | Punctuation-aware SSML support, style/emotion parameters |
 | Offline TTS | Piper (ONNX) via `sherpa-onnx` | Same engine as desktop reader; downloadable voice packs |
 | Text parsing | EbookLib/BeautifulSoup, PyMuPDF, pysbd (backend) | Reused from desktop reader's ingestion pipeline |
