@@ -6,7 +6,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Early implementation** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005). All three tabs, plus the Player and Book Detail / Chapters screens, are built and navigable. Playback is real (`just_audio`), currently driving a bundled placeholder tone since no TTS-generated narration exists yet. No backend — that's next.
+🚧 **Full mockup set built** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable: Library, Voices, Settings, Player, Book Detail / Chapters, Voice Detail, Pronunciation Dictionary, Download Manager, Search, Empty Library State, Onboarding, and Sign In / Sign Up. Playback is real (`just_audio`), currently driving a bundled placeholder tone since no TTS-generated narration exists yet. No backend, no persisted auth/session state — that's next.
 
 ## Tech Stack
 
