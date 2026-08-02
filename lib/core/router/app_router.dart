@@ -11,9 +11,11 @@ import 'package:go_router/go_router.dart';
 import '../../features/book_detail/screens/book_detail_screen.dart';
 import '../../features/download_manager/screens/download_manager_screen.dart';
 import '../../features/library/screens/library_screen.dart';
+import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/player/screens/player_screen.dart';
 import '../../features/pronunciation_dictionary/screens/pronunciation_dictionary_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../features/sign_in/screens/sign_in_screen.dart';
 import '../../features/voice_detail/screens/voice_detail_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
 import 'app_shell.dart';
@@ -99,6 +101,20 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: '/pronunciations',
         builder: (BuildContext context, GoRouterState state) =>
             const PronunciationDictionaryScreen(),
+      ),
+      // Also root-level (see /player above). Not the app's actual
+      // startup gate yet — see OnboardingScreen's doc comment.
+      GoRoute(
+        path: '/onboarding',
+        builder: (BuildContext context, GoRouterState state) =>
+            const OnboardingScreen(),
+      ),
+      // Also root-level (see /player above) — reached from Onboarding's
+      // "Sign in" link.
+      GoRoute(
+        path: '/sign-in',
+        builder: (BuildContext context, GoRouterState state) =>
+            const SignInScreen(),
       ),
     ],
   );
