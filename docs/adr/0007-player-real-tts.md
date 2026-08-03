@@ -3,6 +3,8 @@
 **Status:** Accepted
 **Date:** 2026-08-02
 
+> Update (2026-08-03): the backend is now deployed to Render (backend repo's ADR-0006). `BackendConfig.baseUrl` points at the real deployment; the "no deployed backend" caveats below are historical context for why it originally pointed at `localhost`, not the current state.
+
 ## Context
 
 The backend's TTS proxy (`dastorytella-backend` ADR-0005) and Supabase auth (this repo's ADR-0006, backend's ADR-0004) both exist now, but nothing in the app actually used either — the Player played a bundled placeholder tone (`assets/audio/sample_chapter.wav`) regardless of what chapter/voice was selected. This ADR wires the Player to the backend for real, closing that loop.
