@@ -189,6 +189,15 @@ class PlayerScreen extends ConsumerWidget {
               onViewFullTap: () {},
             ),
             const SizedBox(height: 16),
+            if (nowPlaying.isLoadingAudio)
+              const _AudioStatusBanner.loading()
+            else if (nowPlaying.loadErrorMessage != null)
+              _AudioStatusBanner.error(
+                message: nowPlaying.loadErrorMessage!,
+                onRetry: controller.retryLoadAudio,
+              ),
+            if (nowPlaying.isLoadingAudio || nowPlaying.loadErrorMessage != null)
+              const SizedBox(height: 16),
             WaveformBars(playedFraction: playedFraction),
             const SizedBox(height: 6),
             Row(
@@ -280,6 +289,70 @@ class PlayerScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Shown in place of the waveform's played-fraction fill while this
+/// chapter's narration is still loading, or if it failed to — see
+/// `NowPlayingState.isLoadingAudio`/`loadErrorMessage`.
+class _AudioStatusBanner extends StatelessWidget {
+  const _AudioStatusBanner.loading() : message = null, onRetry = null;
+
+  const _AudioStatusBanner.error({
+    required String this.message,
+    required VoidCallback this.onRetry,
+  });
+
+  /// Null means the loading variant; non-null means the error variant
+  /// with this text.
+  final String? message;
+  final VoidCallback? onRetry;
+
+  bool get _isLoading => message == null;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: _isLoading ? AppColors.surfaceAlt : AppColors.errorPale,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: <Widget>[
+          if (_isLoading)
+            const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else
+            const Icon(Icons.error_outline, size: 16, color: AppColors.error),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _isLoading ? 'Loading narration…' : message!,
+              style: AppTypography.body.copyWith(
+                color: _isLoading ? AppColors.inkSoft : AppColors.error,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          if (onRetry != null)
+            TextButton(
+              onPressed: onRetry,
+              child: Text(
+                'Retry',
+                style: AppTypography.bodyStrong.copyWith(
+                  color: AppColors.maroon,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

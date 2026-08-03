@@ -4,8 +4,11 @@ import 'transcript_sentence.dart';
 
 /// Display model for the currently-playing book/chapter.
 ///
-/// Backed by hardcoded sample data (see `mock_now_playing_data.dart`)
-/// until the TTS pipeline (ARCHITECTURE.md §3) is wired up.
+/// Book/chapter/transcript metadata is backed by hardcoded sample
+/// data (see `mock_now_playing_data.dart`) until real ingestion
+/// (ARCHITECTURE.md §3) exists — but the audio itself is real, fetched
+/// from the backend TTS proxy for this track's transcript text (see
+/// `NowPlayingController`, docs/adr/0007-player-real-tts.md).
 class NowPlayingTrack {
   const NowPlayingTrack({
     required this.bookTitle,
@@ -14,7 +17,6 @@ class NowPlayingTrack {
     required this.chapterIndex,
     required this.totalChapters,
     required this.voiceLabel,
-    required this.audioAssetPath,
     required this.transcript,
     required this.isDownloaded,
   });
@@ -28,10 +30,6 @@ class NowPlayingTrack {
   /// e.g. "Amara — Warm Narrative"
   final String voiceLabel;
 
-  /// Bundled placeholder audio (see `mock_now_playing_data.dart`) — not
-  /// real narration. Duration is read from the asset at playback time
-  /// (`NowPlayingState.durationSeconds`), not stored here.
-  final String audioAssetPath;
   final List<TranscriptSentence> transcript;
   final bool isDownloaded;
 }

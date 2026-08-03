@@ -6,14 +6,14 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Real Supabase auth wired up** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable: Library, Voices, Settings, Player, Book Detail / Chapters, Voice Detail, Pronunciation Dictionary, Download Manager, Search, Empty Library State, Onboarding, and Sign In / Sign Up. Sign In / Sign Up now do real email/password auth against a live Supabase project (see ADR-0006); Apple/Google are still placeholders. Playback is real (`just_audio`), currently driving a bundled placeholder tone since no TTS-generated narration exists yet. No app-wide auth gate yet, and library/voice data is still all mock — that's next.
+🚧 **Player fetches real narration** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable. Sign In / Sign Up do real email/password auth against a live Supabase project (ADR-0006); Apple/Google are still placeholders. The Player (`just_audio`) now synthesizes its transcript via the backend TTS proxy instead of a bundled tone (ADR-0007), with visible loading/error states — currently showing an error because the ElevenLabs key in use is free-tier and can't call its library voices via the API yet. No app-wide auth gate, no deployed backend, and library/voice data is still all mock — that's next.
 
 ## Tech Stack
 
 | Layer | Choice | Why |
 |---|---|---|
 | Frontend | Flutter (Dart) | Single codebase for iOS + Android; mature audio plugin ecosystem |
-| Backend | FastAPI | Proxies all TTS calls (never expose API keys client-side); familiar from BetIQ |
+| Backend | FastAPI | Proxies all TTS calls (never expose API keys client-side); familiar from BetIQ. Player calls it (ADR-0007); not deployed anywhere yet, local dev only |
 | Database / Sync | Supabase (Postgres) | Auth wired up (email/password, ADR-0006); library sync planned |
 | Cloud TTS | Azure Cognitive Services, ElevenLabs | Punctuation-aware SSML support, style/emotion parameters |
 | Offline TTS | Piper (ONNX) via `sherpa-onnx` | Same engine as desktop reader; downloadable voice packs |

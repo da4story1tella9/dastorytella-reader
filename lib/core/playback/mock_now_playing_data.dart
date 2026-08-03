@@ -1,14 +1,12 @@
 /// Hardcoded "now playing" sample, mirroring the Player screen in
 /// `docs/design-reference/app-mockups-v2.html`.
 ///
-/// The book/chapter/transcript metadata is a placeholder until the TTS
-/// pipeline (ARCHITECTURE.md §3) exists — no backend calls. Audio
-/// playback itself is real (`just_audio`, see `NowPlayingController`),
-/// backed by a bundled synthetic placeholder tone
-/// (`assets/audio/sample_chapter.wav`) rather than real narration, since
-/// no TTS-generated audio exists yet. Its duration (~30s) is much
-/// shorter than the fictional "Chapter 3 of 18" story this mock data
-/// describes — that mismatch is expected until real audio replaces it.
+/// The book/chapter/transcript metadata is a placeholder until real
+/// ingestion (ARCHITECTURE.md §3) exists — no backend calls for that
+/// part yet. Audio is real, though: `NowPlayingController` synthesizes
+/// this transcript's text via the backend TTS proxy on load (see
+/// docs/adr/0007-player-real-tts.md) rather than playing a bundled
+/// file.
 library;
 
 import 'package:flutter/material.dart';
@@ -23,7 +21,6 @@ const NowPlayingTrack mockNowPlayingTrack = NowPlayingTrack(
   chapterIndex: 3,
   totalChapters: 18,
   voiceLabel: 'Amara — Warm Narrative',
-  audioAssetPath: 'assets/audio/sample_chapter.wav',
   isDownloaded: true,
   transcript: <TranscriptSentence>[
     TranscriptSentence(
