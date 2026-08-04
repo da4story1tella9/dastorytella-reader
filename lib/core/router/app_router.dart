@@ -1,4 +1,4 @@
-/// App-wide route table (see ADR-0005).
+/// App-wide route table (see ADR-0005) and auth gate (ADR-0008).
 ///
 /// Exposed as a Riverpod provider — consistent with ADR-0004 — rather
 /// than a bare global, so it stays swappable/testable.
@@ -21,14 +21,59 @@ import '../../features/settings/screens/settings_screen.dart';
 import '../../features/voice_detail/screens/voice_detail_screen.dart';
 import '../../features/voices/screens/voices_screen.dart';
 import '../../shared_widgets/coming_soon_screen.dart';
+import '../auth/auth_gate.dart';
 import 'app_shell.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
+// Reachable while signed out: the onboarding/sign-in/sign-up flow
+// itself (obviously), plus the legal pages linked from its footer —
+// Terms/Privacy must stay readable without an account.
+const Set<String> _publicPaths = <String>{
+  '/onboarding',
+  '/sign-in',
+  '/sign-up',
+  '/terms',
+  '/privacy-policy',
+};
+
+const Set<String> _authFlowPaths = <String>{
+  '/onboarding',
+  '/sign-in',
+  '/sign-up',
+};
+
+/// Bridges `isSignedInProvider`'s Riverpod state to go_router's
+/// `refreshListenable`, so a sign-in/sign-out re-evaluates `redirect`
+/// immediately instead of only on the next explicit navigation.
+class _AuthRefreshListenable extends ChangeNotifier {
+  _AuthRefreshListenable(Ref ref) {
+    ref.listen<bool>(isSignedInProvider, (bool? previous, bool next) {
+      notifyListeners();
+    });
+  }
+}
+
 final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
+  final _AuthRefreshListenable refreshListenable = _AuthRefreshListenable(ref);
+  ref.onDispose(refreshListenable.dispose);
+
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/library',
+    refreshListenable: refreshListenable,
+    redirect: (BuildContext context, GoRouterState state) {
+      final bool signedIn = ref.read(isSignedInProvider);
+      final bool onPublicPath = _publicPaths.contains(state.matchedLocation);
+
+      if (!signedIn && !onPublicPath) {
+        return '/onboarding';
+      }
+      if (signedIn && _authFlowPaths.contains(state.matchedLocation)) {
+        return '/library';
+      }
+      return null;
+    },
     routes: <RouteBase>[
       StatefulShellRoute.indexedStack(
         builder: (
@@ -112,8 +157,9 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         builder: (BuildContext context, GoRouterState state) =>
             const SearchScreen(),
       ),
-      // Also root-level (see /player above). Not the app's actual
-      // startup gate yet — see OnboardingScreen's doc comment.
+      // Also root-level (see /player above). This IS the app's actual
+      // startup gate now — see the `redirect` callback above and
+      // OnboardingScreen's doc comment.
       GoRoute(
         path: '/onboarding',
         builder: (BuildContext context, GoRouterState state) =>

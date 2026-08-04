@@ -62,6 +62,24 @@ class AuthController extends Notifier<AuthFormState> {
   void reportValidationError(String message) {
     state = AuthFormState(errorMessage: message);
   }
+
+  /// Doesn't navigate anywhere itself — clearing the Supabase session
+  /// updates `isSignedInProvider` (core/auth/auth_gate.dart), and the
+  /// router's own redirect sends a signed-out user back to Onboarding
+  /// (ADR-0008). Callers may still navigate explicitly too, same
+  /// belt-and-suspenders reasoning as AuthScreen's sign-in success
+  /// handling.
+  Future<void> signOut() async {
+    state = const AuthFormState(isSubmitting: true);
+    try {
+      await Supabase.instance.client.auth.signOut();
+      state = const AuthFormState();
+    } on AuthException catch (error) {
+      state = AuthFormState(errorMessage: error.message);
+    } catch (_) {
+      state = const AuthFormState(errorMessage: _genericErrorMessage);
+    }
+  }
 }
 
 const String _genericErrorMessage = 'Something went wrong. Please try again.';

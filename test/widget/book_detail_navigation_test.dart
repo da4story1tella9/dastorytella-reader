@@ -1,15 +1,23 @@
+import 'package:dastorytella_reader/core/auth/auth_gate.dart';
 import 'package:dastorytella_reader/features/library/widgets/book_card.dart';
 import 'package:dastorytella_reader/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/fake_auth_gate.dart';
+
 void main() {
   testWidgets('tapping a book card opens Book Detail and back returns', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(child: DaStoryTellaReaderApp()),
+      ProviderScope(
+        overrides: <Override>[
+          isSignedInProvider.overrideWith(FakeSignedInAuthGateController.new),
+        ],
+        child: const DaStoryTellaReaderApp(),
+      ),
     );
     await tester.pumpAndSettle();
 

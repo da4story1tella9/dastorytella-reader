@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_typography.dart';
+import '../../auth/state/auth_controller.dart';
 import '../../pronunciation_dictionary/state/pronunciation_providers.dart';
 import '../models/settings_group.dart';
 import '../models/settings_item.dart';
@@ -79,7 +80,16 @@ class SettingsScreen extends ConsumerWidget {
                   SettingsRow(
                     item: item,
                     onTap: item.title == 'Log out'
-                        ? () => context.go('/onboarding')
+                        ? () async {
+                            await ref
+                                .read(authControllerProvider.notifier)
+                                .signOut();
+                            // Belt-and-suspenders, same as AuthScreen's
+                            // sign-in success handling — the router's
+                            // redirect already sends a signed-out user
+                            // to Onboarding on its own.
+                            if (context.mounted) context.go('/onboarding');
+                          }
                         : () {},
                   ),
               ],
