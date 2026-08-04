@@ -6,7 +6,7 @@ Companion app to the existing desktop reader (Python/PySide6). This repo is the 
 
 ## Status
 
-🚧 **Backend deployed, player wired up end to end** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable. Sign In / Sign Up do real email/password auth against a live Supabase project (ADR-0006); Apple/Google are still placeholders. The Player (`just_audio`) synthesizes its transcript via the backend TTS proxy instead of a bundled tone (ADR-0007), pointing at the backend's real Render deployment — with visible loading/error states, currently showing an error because the ElevenLabs key in use is free-tier and can't call its library voices via the API yet. No app-wide auth gate, and library/voice data is still all mock — that's next.
+🚧 **Real auth gate, backend deployed, player wired up end to end** — navigation shell (Library / Voices / Settings) is wired up (see ADR-0004, ADR-0005), and every screen from `docs/design-reference/` is built and navigable. Sign In / Sign Up do real email/password auth against a live Supabase project (ADR-0006); Apple/Google are still placeholders. A signed-out user is now actually gated to Onboarding — Library/Player/Settings/etc. all require a real session (ADR-0008), with a working "Log out." The Player (`just_audio`) synthesizes its transcript via the backend TTS proxy instead of a bundled tone (ADR-0007), pointing at the backend's real Render deployment — with visible loading/error states, currently showing an error because the ElevenLabs key in use is free-tier and can't call its library voices via the API yet. Library/voice data is still all mock — that's next.
 
 ## Tech Stack
 

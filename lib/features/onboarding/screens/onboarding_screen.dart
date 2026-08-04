@@ -6,11 +6,10 @@
 /// static visual matching the mockup rather than faked into a real
 /// carousel with undesigned steps.
 ///
-/// Not wired as the app's actual startup gate (see main.dart /
-/// app_router.dart — initialLocation stays '/library'): that needs
-/// persisted "has onboarded" state and real auth, neither of which
-/// exist yet (ARCHITECTURE.md §1). This screen is reachable and fully
-/// built, just not yet forced in front of every launch.
+/// This IS the app's actual startup gate now (ADR-0008,
+/// core/router/app_router.dart's `redirect` callback) — a signed-out
+/// user lands here before anything else, regardless of what URL they
+/// might otherwise have opened.
 library;
 
 import 'package:flutter/material.dart';
