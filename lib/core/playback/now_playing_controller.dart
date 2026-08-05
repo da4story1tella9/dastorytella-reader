@@ -1,13 +1,17 @@
 /// Shared "now playing" controller (see ADR-0004). Drives real audio
 /// playback via `just_audio`, loaded from the backend TTS proxy rather
-/// than a bundled placeholder — see docs/adr/0007-player-real-tts.md
-/// and docs/adr/0009-real-voice-selection.md (voice choice).
+/// than a bundled placeholder — see docs/adr/0007-player-real-tts.md,
+/// docs/adr/0009-real-voice-selection.md (voice choice), and
+/// docs/adr/0011-real-book-detail.md (real book/chapter content —
+/// nothing plays until `playChapter` is called with a real
+/// selection; there's no eager mock load on startup).
 library;
 
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,7 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import '../constants/app_constants.dart';
 import '../tts/selected_voice.dart';
 import '../tts/tts_client.dart';
-import 'mock_now_playing_data.dart';
+import 'models/now_playing_track.dart';
 import 'models/transcript_sentence.dart';
 import 'now_playing_state.dart';
 
@@ -40,11 +44,11 @@ class NowPlayingController extends Notifier<NowPlayingState> {
       unawaited(_guard(_player.dispose));
     });
 
-    // Subscriptions are set up once, here — not inside `_loadAudio`,
-    // which also runs on retry and would otherwise leak a duplicate
-    // subscription each time. Registering `.listen(...)` is itself
-    // synchronous and doesn't touch `state`, so — unlike reading
-    // `state` before `build()` returns — this is safe to do directly.
+    // Registering `.listen(...)` is itself synchronous and doesn't
+    // touch `state`, so — unlike reading `state` before `build()`
+    // returns — this is safe to do directly here, once, rather than
+    // inside `_loadAudio` (which also runs on retry/a new chapter and
+    // would otherwise leak a duplicate subscription each time).
     _positionSub = _player.positionStream.listen((Duration position) {
       state = state.copyWith(positionSeconds: position.inSeconds);
     });
@@ -58,17 +62,22 @@ class NowPlayingController extends Notifier<NowPlayingState> {
       }
     });
 
-    unawaited(_loadAudio());
-
+    // No eager synthesis on startup — deliberate. Every previous
+    // version of this controller loaded a track the moment the app
+    // opened, which was fine for a bundled placeholder tone but means
+    // a real ElevenLabs call (real cost, real rate-limit budget) on
+    // every single app launch regardless of whether the user ever
+    // opens the Player. Now nothing plays until `playChapter` is
+    // called with something the user actually chose.
     return NowPlayingState(
-      track: mockNowPlayingTrack,
+      track: NowPlayingTrack.empty,
       isPlaying: false,
       positionSeconds: 0,
       durationSeconds: 0,
       speed: 1,
       isBookmarked: false,
       sleepTimerLabel: _sleepTimerPresets.first,
-      isLoadingAudio: true,
+      isLoadingAudio: false,
       loadErrorMessage: null,
     );
   }
@@ -108,21 +117,60 @@ class NowPlayingController extends Notifier<NowPlayingState> {
     );
   }
 
+  /// Starts playing a real chapter — called from Book Detail
+  /// (docs/adr/0011-real-book-detail.md) with an actual persisted
+  /// book/chapter, never mock data.
+  Future<void> playChapter({
+    required String bookId,
+    required String bookTitle,
+    required String spineLabel,
+    required List<Color> coverGradient,
+    required int chapterIndex,
+    required int totalChapters,
+    required List<String> sentences,
+    required bool isDownloaded,
+  }) async {
+    final SelectedVoice voice = ref.read(selectedVoiceProvider);
+
+    state = NowPlayingState(
+      track: NowPlayingTrack(
+        bookId: bookId,
+        bookTitle: bookTitle,
+        spineLabel: spineLabel,
+        coverGradient: coverGradient,
+        chapterIndex: chapterIndex,
+        totalChapters: totalChapters,
+        voiceLabel: voice.name,
+        transcript: sentences
+            .map(
+              (String text) => TranscriptSentence(text: text, isActive: false),
+            )
+            .toList(),
+        isDownloaded: isDownloaded,
+      ),
+      isPlaying: false,
+      positionSeconds: 0,
+      durationSeconds: 0,
+      speed: state.speed, // keep the user's chosen speed across chapters
+      isBookmarked: false,
+      sleepTimerLabel: state.sleepTimerLabel,
+      isLoadingAudio: true,
+      loadErrorMessage: null,
+    );
+
+    await _loadAudio();
+  }
+
   Future<void> _loadAudio() async {
-    // Deliberately built from the top-level mock constant, not
-    // `state.track` — this function's synchronous prefix (everything
-    // before its first `await`) runs immediately when called from
-    // `build()`, before `build()` has returned, and `state` isn't
-    // readable yet at that point.
-    final String text = mockNowPlayingTrack.transcript
+    final String text = state.track.transcript
         .map((TranscriptSentence sentence) => sentence.text)
         .join();
 
     // Read once at load time, not watched — this deliberately doesn't
     // make an already-loaded chapter reactively re-synthesize if the
     // user changes their default voice mid-session (see ADR-0009);
-    // the new voice takes effect on the next load.
-    final String voiceId = ref.read(selectedVoiceIdProvider);
+    // the new voice takes effect on the next chapter played.
+    final String voiceId = ref.read(selectedVoiceProvider).id;
     final TTSClient ttsClient = ref.read(ttsClientProvider);
 
     Duration? duration;

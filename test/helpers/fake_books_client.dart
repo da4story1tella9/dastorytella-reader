@@ -24,6 +24,19 @@ class FakeBooksClient extends BooksClient {
   }
 
   @override
+  Future<RemoteBook?> getBook({required String id}) async {
+    if (shouldFail) {
+      throw const BooksRequestException('Simulated failure loading books.');
+    }
+    for (final RemoteBook book in _books) {
+      if (book.id == id) {
+        return book;
+      }
+    }
+    return null;
+  }
+
+  @override
   Future<RemoteBook> createBook({
     required String title,
     required List<ParsedChapter> chapters,

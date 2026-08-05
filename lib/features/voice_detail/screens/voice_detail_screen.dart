@@ -5,7 +5,7 @@
 /// The voice itself is real now (`voicesListProvider`, ADR-0009),
 /// including a real "Play preview" using ElevenLabs' own preview
 /// audio, and "Set as default" writes to the shared
-/// `selectedVoiceIdProvider` that `NowPlayingController` reads —
+/// `selectedVoiceProvider` that `NowPlayingController` reads —
 /// picking a voice here actually changes what narrates future
 /// playback. Favorite/book-assignment toggles stay local-only mock
 /// state (unrelated to ElevenLabs data, out of this ADR's scope), and
@@ -198,7 +198,7 @@ class _VoiceDetailBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String category = voice.tags.split(' · ').last;
-    final bool isDefault = ref.watch(selectedVoiceIdProvider) == voice.id;
+    final bool isDefault = ref.watch(selectedVoiceProvider).id == voice.id;
 
     return Scaffold(
       body: SafeArea(
@@ -313,8 +313,11 @@ class _VoiceDetailBody extends ConsumerWidget {
                         label: isDefault ? 'Default voice' : 'Set as default',
                         primary: true,
                         onTap: () => ref
-                            .read(selectedVoiceIdProvider.notifier)
-                            .state = voice.id,
+                            .read(selectedVoiceProvider.notifier)
+                            .state = SelectedVoice(
+                              id: voice.id,
+                              name: voice.name,
+                            ),
                       ),
                     ),
                   ],

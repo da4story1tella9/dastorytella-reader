@@ -6,7 +6,9 @@
 /// ADR-0010) — fetched from the backend, with a real "import a book"
 /// flow (pick an EPUB, parse it, save it) behind the "+" icon and the
 /// empty-state CTA. Collections/Archive stay empty — no backend
-/// concept for either exists yet, same gap as before this ADR.
+/// concept for either exists yet, same gap as before this ADR. The
+/// mini-player shows only once something's actually been chosen to
+/// play (ADR-0011), not just because the library has books.
 library;
 
 import 'package:flutter/material.dart';
@@ -15,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/books/books_client.dart';
+import '../../../core/playback/now_playing_controller.dart';
+import '../../../core/playback/now_playing_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared_widgets/app_icon_button.dart';
@@ -68,6 +72,18 @@ class LibraryScreen extends ConsumerWidget {
         : const <Book>[];
     final bool isLoadingBooks = isSaved && booksAsync.isLoading;
     final Object? booksError = isSaved ? booksAsync.error : null;
+    // Not "does the library have books" — whether something has
+    // actually been chosen to play (ADR-0011). Showing a mini-player
+    // just because books exist would either fabricate "now playing"
+    // info nobody selected, or (before this ADR) always show the
+    // same hardcoded mock track regardless of what's really playing.
+    final bool hasActivePlayback = ref
+        .watch(
+          nowPlayingProvider.select(
+            (NowPlayingState s) => s.track.bookId,
+          ),
+        )
+        .isNotEmpty;
 
     return Scaffold(
       body: SafeArea(
@@ -221,7 +237,7 @@ class LibraryScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            if (books.isNotEmpty)
+            if (hasActivePlayback)
               const Padding(
                 padding: EdgeInsets.only(bottom: 10),
                 child: MiniPlayer(),

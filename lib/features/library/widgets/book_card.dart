@@ -16,10 +16,9 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Every book currently routes to the same mock book detail (see
-    // mock_book_detail_data.dart) — no per-book detail data exists yet.
+    // Book Detail fetches this real book by id now (ADR-0011).
     return GestureDetector(
-      onTap: () => context.push('/book'),
+      onTap: () => context.push('/book/${book.id}'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
