@@ -10,34 +10,40 @@ import '../helpers/fake_auth_gate.dart';
 import '../helpers/fake_books_client.dart';
 
 void main() {
-  testWidgets('tapping a book card opens Book Detail and back returns', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: <Override>[
-          isSignedInProvider.overrideWith(FakeSignedInAuthGateController.new),
-          booksClientProvider.overrideWithValue(FakeBooksClient()),
-        ],
-        child: const DaStoryTellaReaderApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'tapping a book card opens the real Book Detail and back returns',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[
+            isSignedInProvider.overrideWith(
+              FakeSignedInAuthGateController.new,
+            ),
+            booksClientProvider.overrideWithValue(FakeBooksClient()),
+          ],
+          child: const DaStoryTellaReaderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(BookCard).first);
-    await tester.pumpAndSettle();
+      await tester.tap(find.byType(BookCard).first);
+      await tester.pumpAndSettle();
 
-    expect(find.text('Read by Amara · 6h 40m total'), findsOneWidget);
-    expect(find.text('The Rain in Abidjan'), findsOneWidget);
-    // Chapter 3 ("Le Salon Caramel") is the currently-playing chapter,
-    // so its row should show a live remaining-time label instead of
-    // the static per-chapter duration.
-    expect(find.textContaining('left of'), findsOneWidget);
+      // Real data from FakeBooksClient's default book, not mock
+      // strings — proves the screen actually fetched by the tapped
+      // book's real id rather than showing fixed content regardless.
+      expect(find.text('Test Book'), findsOneWidget);
+      expect(find.text('1 chapter'), findsOneWidget);
+      expect(find.text('Chapter One'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.arrow_back));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Read by Amara · 6h 40m total'), findsNothing);
-    expect(find.byType(BookCard), findsWidgets);
-  });
+      // 'Chapter One' — the chapter row — is unique to Book Detail;
+      // 'Test Book'/'1 chapter' legitimately also appear on Library's
+      // BookCard (same derived byline), so aren't useful here.
+      expect(find.text('Chapter One'), findsNothing);
+      expect(find.byType(BookCard), findsWidgets);
+    },
+  );
 }

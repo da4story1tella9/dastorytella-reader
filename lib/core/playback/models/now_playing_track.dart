@@ -4,13 +4,13 @@ import 'transcript_sentence.dart';
 
 /// Display model for the currently-playing book/chapter.
 ///
-/// Book/chapter/transcript metadata is backed by hardcoded sample
-/// data (see `mock_now_playing_data.dart`) until real ingestion
-/// (ARCHITECTURE.md §3) exists — but the audio itself is real, fetched
-/// from the backend TTS proxy for this track's transcript text (see
-/// `NowPlayingController`, docs/adr/0007-player-real-tts.md).
+/// Real now — built by `NowPlayingController.playChapter` from an
+/// actual persisted book/chapter (docs/adr/0011-real-book-detail.md),
+/// not hardcoded mock data. [empty] is the inert placeholder before
+/// anything has ever been played this session.
 class NowPlayingTrack {
   const NowPlayingTrack({
+    required this.bookId,
     required this.bookTitle,
     required this.spineLabel,
     required this.coverGradient,
@@ -21,6 +21,22 @@ class NowPlayingTrack {
     required this.isDownloaded,
   });
 
+  /// Empty means "nothing has been played yet" — checked by
+  /// MiniPlayer's callers to decide whether to show it at all, rather
+  /// than showing a mini-player for a track nobody chose to play.
+  static const NowPlayingTrack empty = NowPlayingTrack(
+    bookId: '',
+    bookTitle: '',
+    spineLabel: '',
+    coverGradient: <Color>[Color(0xFFEAE3D6), Color(0xFFEAE3D6)],
+    chapterIndex: 0,
+    totalChapters: 0,
+    voiceLabel: '',
+    transcript: <TranscriptSentence>[],
+    isDownloaded: false,
+  );
+
+  final String bookId;
   final String bookTitle;
   final String spineLabel;
   final List<Color> coverGradient;

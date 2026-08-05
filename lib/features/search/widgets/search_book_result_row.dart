@@ -23,10 +23,11 @@ class SearchBookResultRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // Every result routes to the same mock book detail (see
-      // mock_book_detail_data.dart) — no per-book detail data exists
-      // yet, same simplification as Library's BookCard.
-      onTap: () => context.push('/book'),
+      // Search's results are still mock data (out of ADR-0011's
+      // scope), so this real book id won't resolve to anything —
+      // Book Detail correctly shows "not found" rather than the
+      // route breaking outright now that it requires an id.
+      onTap: () => context.push('/book/${book.id}'),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: const BoxDecoration(

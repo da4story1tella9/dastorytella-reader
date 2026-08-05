@@ -4,11 +4,14 @@
 /// `docs/design-reference/app-mockups-v2.html`.
 ///
 /// Reads/mutates the shared now-playing state (`core/playback/`) so
-/// it always agrees with the Library mini-player. No real audio
-/// engine yet (ARCHITECTURE.md §3/§4) — controls mutate mock position
-/// state only. The cover's subtle "breathing" scale animation from
-/// the mockup is skipped as a decorative flourish not needed for
-/// functional fidelity.
+/// it always agrees with the Library mini-player. Real audio, real
+/// content — a real chapter, chosen from Book Detail
+/// (ADR-0011/`NowPlayingController.playChapter`). Reachable only via
+/// the mini-player or a chapter tap, both of which only exist once
+/// something real is already selected, but the empty-track guard
+/// below still exists for a direct/stale navigation. The cover's
+/// subtle "breathing" scale animation from the mockup is skipped as a
+/// decorative flourish not needed for functional fidelity.
 library;
 
 import 'package:flutter/material.dart';
@@ -43,6 +46,34 @@ class PlayerScreen extends ConsumerWidget {
         ? 0
         : nowPlaying.positionSeconds / nowPlaying.durationSeconds;
 
+    // Defensive only — reachable via the mini-player or a chapter
+    // tap, both of which only appear once something real is already
+    // selected (see this file's doc comment), but a direct/stale
+    // navigation shouldn't render the rest of this screen against an
+    // empty track (e.g. "Chapter 0 of 0").
+    if (nowPlaying.track.bookId.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: AppIconButton(
+                  icon: Icons.keyboard_arrow_down,
+                  onTap: () => context.canPop()
+                      ? context.pop()
+                      : context.go('/library'),
+                ),
+              ),
+              const Expanded(
+                child: Center(child: Text('Nothing is playing.')),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -57,7 +88,8 @@ class PlayerScreen extends ConsumerWidget {
                       context.canPop() ? context.pop() : context.go('/library'),
                 ),
                 GestureDetector(
-                  onTap: () => context.push('/book'),
+                  onTap: () =>
+                      context.push('/book/${nowPlaying.track.bookId}'),
                   child: Column(
                     children: <Widget>[
                       Row(

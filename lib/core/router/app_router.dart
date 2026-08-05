@@ -125,9 +125,9 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
       // book card or the Player's chapter header, both full-screen
       // pushes with no bottom nav.
       GoRoute(
-        path: '/book',
+        path: '/book/:bookId',
         builder: (BuildContext context, GoRouterState state) =>
-            const BookDetailScreen(),
+            BookDetailScreen(bookId: state.pathParameters['bookId']!),
       ),
       // Also root-level (see /player above) — reached from a Voices
       // card tap.

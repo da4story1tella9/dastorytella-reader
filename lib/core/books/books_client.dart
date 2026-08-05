@@ -87,6 +87,40 @@ class BooksClient {
         .toList();
   }
 
+  /// Null means the book doesn't exist — or, thanks to Postgres Row
+  /// Level Security on the backend, belongs to someone else, which
+  /// looks identical from here (backend repo's ADR-0009 on why that's
+  /// deliberate). Any other failure throws, same as the other calls.
+  Future<RemoteBook?> getBook({required String id}) async {
+    final String accessToken = _requireAccessToken(
+      'Sign in to see this book.',
+    );
+
+    final http.Response response;
+    try {
+      response = await http
+          .get(
+            Uri.parse('${BackendConfig.baseUrl}/books/$id'),
+            headers: <String, String>{'Authorization': 'Bearer $accessToken'},
+          )
+          .timeout(const Duration(seconds: 15));
+    } catch (_) {
+      throw const BooksRequestException(
+        "Couldn't reach the server. Check your connection and try again.",
+      );
+    }
+
+    if (response.statusCode == 404) {
+      return null;
+    }
+    if (response.statusCode != 200) {
+      throw const BooksRequestException(
+        "Couldn't load this book. Please try again shortly.",
+      );
+    }
+    return RemoteBook.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
   String _requireAccessToken(String messageIfMissing) {
     final String? accessToken =
         Supabase.instance.client.auth.currentSession?.accessToken;
