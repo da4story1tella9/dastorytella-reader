@@ -4,6 +4,8 @@
 **Date:** 2026-08-02
 
 > Update (2026-08-03): the backend is now deployed to Render (backend repo's ADR-0006). `BackendConfig.baseUrl` points at the real deployment; the "no deployed backend" caveats below are historical context for why it originally pointed at `localhost`, not the current state.
+>
+> Update (2026-08-03): the ElevenLabs account moved to a paid plan, resolving the free-tier `402`/library-voice restriction discovered while building this — real synthesis against `_placeholderVoiceId` (`NowPlayingController`) now succeeds. The "every real request currently fails" language below describes why the error-visibility design decision was made, not the current state; that decision itself (show failures, don't silently substitute audio) stands regardless.
 
 ## Context
 

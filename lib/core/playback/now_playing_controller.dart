@@ -24,11 +24,13 @@ const List<String> _sleepTimerPresets = <String>[
   'End of chapter',
 ];
 
-// ElevenLabs' free API tier rejects its own shared library voices
-// (see docs/adr/0007-player-real-tts.md) — this is a placeholder
-// until a real, API-eligible voice exists. Every request correctly
-// fails with a visible error until then, rather than silently
-// substituting different audio.
+// ElevenLabs' "Rachel" voice — synthesis against this now works for
+// real (the ElevenLabs account moved to a paid plan, resolving the
+// free-tier library-voice restriction noted in
+// docs/adr/0007-player-real-tts.md). Still a placeholder in the sense
+// that it isn't driven by any real voice-selection UI (Voices screen
+// is still mock data) — replacing it is tracked alongside that work,
+// not a synthesis-capability problem anymore.
 const String _placeholderVoiceId = '21m00Tcm4TlvDq8ikWAM';
 
 class NowPlayingController extends Notifier<NowPlayingState> {
