@@ -3,17 +3,20 @@
 /// voice list. Mirrors the Voices screen in
 /// `docs/design-reference/app-mockups-v2.html`.
 ///
-/// Uses hardcoded mock data (`state/mock_voices_data.dart`) — no
-/// backend calls yet. The chip rows track selection locally but don't
-/// filter the mock list, matching the segmented control's fidelity on
-/// the Library screen.
+/// The voice list is real now (`state/voices_providers.dart`,
+/// ADR-0009), fetched from the backend's `/tts/voices`. The chip rows
+/// still only track selection locally without filtering the list —
+/// same fidelity gap as the segmented control on the Library screen,
+/// unrelated to this ADR.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/tts/tts_client.dart';
 import '../../../shared_widgets/app_chip.dart';
 import '../../../shared_widgets/app_icon_button.dart';
 import '../../../shared_widgets/app_segmented_control.dart';
@@ -32,7 +35,7 @@ class VoicesScreen extends ConsumerWidget {
     final VoicesSegment segment = ref.watch(voicesSegmentProvider);
     final VoiceExploreTab exploreTab = ref.watch(voiceExploreTabProvider);
     final VoiceCategory category = ref.watch(voiceCategoryProvider);
-    final List<Voice> voices = ref.watch(voicesListProvider);
+    final AsyncValue<List<Voice>> voicesAsync = ref.watch(voicesListProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -104,9 +107,75 @@ class VoicesScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            for (final Voice voice in voices) VoiceCard(voice: voice),
+            voicesAsync.when(
+              data: (List<Voice> voices) => Column(
+                children: <Widget>[
+                  for (final Voice voice in voices) VoiceCard(voice: voice),
+                ],
+              ),
+              loading: () => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              ),
+              error: (Object error, StackTrace _) => _VoicesErrorState(
+                message: error is TTSRequestException
+                    ? error.message
+                    : 'Something went wrong loading voices.',
+                onRetry: () => ref.invalidate(voicesListProvider),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _VoicesErrorState extends StatelessWidget {
+  const _VoicesErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.errorPale,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.error_outline, size: 16, color: AppColors.error),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTypography.body.copyWith(
+                color: AppColors.error,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(
+              'Retry',
+              style: AppTypography.bodyStrong.copyWith(
+                color: AppColors.maroon,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
