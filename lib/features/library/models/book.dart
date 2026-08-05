@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Display model for a library entry.
 ///
-/// Backed by hardcoded sample data (see `state/mock_library_data.dart`)
-/// until library sync (ARCHITECTURE.md §1) is wired up.
+/// The Saved segment populates this from a real, persisted book now
+/// (`state/library_providers.dart`/`book_mapper.dart`, ADR-0010) —
+/// Search's mock data (`state/mock_library_data.dart`) is untouched,
+/// a separate still-fully-mock screen out of that ADR's scope.
 class Book {
   const Book({
     required this.id,

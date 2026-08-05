@@ -12,12 +12,19 @@ class EmptyLibraryState extends StatelessWidget {
     required this.title,
     required this.body,
     this.showImportCta = false,
+    this.onImportTap,
     super.key,
   });
 
   final String title;
   final String body;
   final bool showImportCta;
+
+  /// Required whenever [showImportCta] is true — kept separately
+  /// nullable rather than required outright so callers that pass
+  /// `showImportCta: false` (Collections/Archive) don't need to wire
+  /// a callback they'll never use.
+  final VoidCallback? onImportTap;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +66,7 @@ class EmptyLibraryState extends StatelessWidget {
           if (showImportCta) ...<Widget>[
             const SizedBox(height: 22),
             InkWell(
-              onTap: () {},
+              onTap: onImportTap,
               borderRadius: BorderRadius.circular(14),
               child: Container(
                 padding: const EdgeInsets.symmetric(

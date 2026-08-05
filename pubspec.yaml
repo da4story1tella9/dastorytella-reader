@@ -37,6 +37,11 @@ dependencies:
   # correct temp directory across iOS/Android/desktop.
   path_provider: ^2.1.0
 
+  # Native file picker for importing a book (core/ingestion,
+  # ADR-0010) — cross-platform, returns file bytes directly
+  # (withData: true) rather than only a path, which is what web needs.
+  file_picker: ^8.1.0
+
   # --- Not yet added; documented here as the anticipated set. ---
   # Add via `flutter pub add <package>` when each feature is actually built,
   # rather than pre-installing unused dependencies.

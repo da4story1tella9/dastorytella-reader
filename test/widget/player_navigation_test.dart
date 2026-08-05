@@ -1,4 +1,5 @@
 import 'package:dastorytella_reader/core/auth/auth_gate.dart';
+import 'package:dastorytella_reader/core/books/books_client.dart';
 import 'package:dastorytella_reader/main.dart';
 import 'package:dastorytella_reader/shared_widgets/mini_player.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/fake_auth_gate.dart';
+import '../helpers/fake_books_client.dart';
 
 void main() {
   testWidgets('mini-player opens Player screen and back returns to Library', (
@@ -15,6 +17,7 @@ void main() {
       ProviderScope(
         overrides: <Override>[
           isSignedInProvider.overrideWith(FakeSignedInAuthGateController.new),
+          booksClientProvider.overrideWithValue(FakeBooksClient()),
         ],
         child: const DaStoryTellaReaderApp(),
       ),
