@@ -52,6 +52,31 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   bool get _isSignIn => widget.mode == AuthMode.signIn;
 
+  static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  static final RegExp _hasUppercase = RegExp('[A-Z]');
+  static final RegExp _hasDigit = RegExp('[0-9]');
+  static final RegExp _hasSpecialChar = RegExp(
+    r'''[!@#$%^&*(),.?":{}|<>_\-+=\[\];/~`]''',
+  );
+
+  /// Only enforced on sign-up — a sign-in shouldn't reject a
+  /// password an account was already created with.
+  String? _passwordPolicyError(String password) {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters.';
+    }
+    if (!_hasUppercase.hasMatch(password)) {
+      return 'Password must include at least one uppercase letter.';
+    }
+    if (!_hasDigit.hasMatch(password)) {
+      return 'Password must include at least one number.';
+    }
+    if (!_hasSpecialChar.hasMatch(password)) {
+      return 'Password must include at least one special character.';
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -78,6 +103,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       };
       controller.reportValidationError(message);
       return;
+    }
+
+    if (!_emailPattern.hasMatch(email)) {
+      controller.reportValidationError('Enter a valid email address.');
+      return;
+    }
+
+    if (!_isSignIn) {
+      final String? passwordError = _passwordPolicyError(password);
+      if (passwordError != null) {
+        controller.reportValidationError(passwordError);
+        return;
+      }
     }
 
     final AuthResult result = _isSignIn
@@ -131,215 +169,220 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: AppIconButton(
-                  icon: Icons.arrow_back,
-                  onTap: () => context.canPop()
-                      ? context.pop()
-                      : context.go('/onboarding'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const AppMark(size: 56),
-              const SizedBox(height: 20),
-              Text(
-                _isSignIn ? 'Welcome back' : 'Create your account',
-                textAlign: TextAlign.center,
-                style: AppTypography.screenTitle.copyWith(fontSize: 24),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _isSignIn
-                    ? 'Sign in to sync your library, voices, and reading '
-                        'position across devices.'
-                    : 'Set up a free account to save your library, '
-                        'voices, and reading position across devices.',
-                textAlign: TextAlign.center,
-                style: AppTypography.body.copyWith(
-                  color: AppColors.inkSoft,
-                  fontSize: 12.5,
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // IntrinsicWidth (not each button's own natural width) so
-              // the two end up aligned to the widest label rather
-              // than each hugging its own, different-length text —
-              // compact as a group, not full-bleed, per review.
-              IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    _AuthButton(
-                      icon: Icons.apple,
-                      label: 'Continue with Apple',
-                      background: const Color(0xFF141210),
-                      foreground: Colors.white,
-                      onTap: () => _showNotSetUpYet('Apple'),
-                    ),
-                    const SizedBox(height: 10),
-                    _AuthButton(
-                      icon: Icons.g_mobiledata,
-                      label: 'Continue with Google',
-                      background: AppColors.surface,
-                      foreground: AppColors.ink,
-                      bordered: true,
-                      onTap: () => _showNotSetUpYet('Google'),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
-              Row(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  const Expanded(child: Divider(color: AppColors.line)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      'OR',
-                      style: AppTypography.eyebrow.copyWith(
-                        color: AppColors.inkFaint,
-                      ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: AppIconButton(
+                      icon: Icons.arrow_back,
+                      onTap: () => context.canPop()
+                          ? context.pop()
+                          : context.go('/onboarding'),
                     ),
                   ),
-                  const Expanded(child: Divider(color: AppColors.line)),
-                ],
-              ),
-              const SizedBox(height: 18),
-              _AuthTextField(
-                controller: _emailController,
-                hint: 'Email',
-                icon: Icons.mail_outline,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 10),
-              _AuthTextField(
-                controller: _passwordController,
-                hint: 'Password',
-                icon: Icons.lock_outline,
-                obscureText: _obscurePassword,
-                onSubmitted: (_) => _submit(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 18,
-                    color: AppColors.inkFaint,
+                  const SizedBox(height: 16),
+                  const AppMark(size: 56),
+                  const SizedBox(height: 20),
+                  Text(
+                    _isSignIn ? 'Welcome back' : 'Create your account',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.screenTitle.copyWith(fontSize: 24),
                   ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-              if (errorMessage != null) ...<Widget>[
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.errorPale,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    errorMessage,
+                  const SizedBox(height: 8),
+                  Text(
+                    _isSignIn
+                        ? 'Sign in to sync your library, voices, and reading '
+                            'position across devices.'
+                        : 'Set up a free account to save your library, '
+                            'voices, and reading position across devices.',
+                    textAlign: TextAlign.center,
                     style: AppTypography.body.copyWith(
-                      color: AppColors.error,
-                      fontSize: 12,
+                      color: AppColors.inkSoft,
+                      fontSize: 12.5,
+                      height: 1.6,
                     ),
                   ),
-                ),
-              ],
-              const SizedBox(height: 14),
-              InkWell(
-                onTap: isSubmitting ? null : _submit,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.maroon,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: isSubmitting
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : Text(
-                          _isSignIn ? 'Sign in' : 'Create account',
-                          textAlign: TextAlign.center,
-                          style: AppTypography.bodyStrong.copyWith(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
+                  const SizedBox(height: 20),
+                  // IntrinsicWidth (not each button's own natural width) so
+                  // the two end up aligned to the widest label rather
+                  // than each hugging its own, different-length text —
+                  // compact as a group, not full-bleed, per review.
+                  IntrinsicWidth(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        _AuthButton(
+                          icon: Icons.apple,
+                          label: 'Continue with Apple',
+                          background: const Color(0xFF141210),
+                          foreground: Colors.white,
+                          onTap: () => _showNotSetUpYet('Apple'),
                         ),
-                ),
-              ),
-              const SizedBox(height: 22),
-              Center(
-                child: InkWell(
-                  onTap: () =>
-                      context.push(_isSignIn ? '/sign-up' : '/sign-in'),
-                  child: RichText(
-                    text: TextSpan(
-                      style: AppTypography.bodyStrong.copyWith(
-                        color: AppColors.inkSoft,
-                        fontSize: 12,
-                      ),
-                      children: <InlineSpan>[
-                        TextSpan(
-                          text: _isSignIn
-                              ? 'New here? '
-                              : 'Already have an account? ',
-                        ),
-                        TextSpan(
-                          text: _isSignIn ? 'Create an account' : 'Sign in',
-                          style: const TextStyle(color: AppColors.maroon),
+                        const SizedBox(height: 10),
+                        _AuthButton(
+                          icon: Icons.g_mobiledata,
+                          label: 'Continue with Google',
+                          background: AppColors.surface,
+                          foreground: AppColors.ink,
+                          bordered: true,
+                          onTap: () => _showNotSetUpYet('Google'),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 22),
-              // Wrap of separate Text/InkWell segments, not RichText +
-              // TextSpan.recognizer — a TapGestureRecognizer needs
-              // explicit disposal to avoid leaking, which a
-              // StatelessWidget can't do cleanly. This achieves the
-              // same inline look without that lifecycle concern.
-              Wrap(
-                alignment: WrapAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "By continuing, you agree to daStoryTella's ",
-                    style: _termsTextStyle,
+                  const SizedBox(height: 22),
+                  Row(
+                    children: <Widget>[
+                      const Expanded(child: Divider(color: AppColors.line)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          'OR',
+                          style: AppTypography.eyebrow.copyWith(
+                            color: AppColors.inkFaint,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.line)),
+                    ],
                   ),
+                  const SizedBox(height: 18),
+                  _AuthTextField(
+                    controller: _emailController,
+                    hint: 'Email',
+                    icon: Icons.mail_outline,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 10),
+                  _AuthTextField(
+                    controller: _passwordController,
+                    hint: 'Password',
+                    icon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    onSubmitted: (_) => _submit(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 18,
+                        color: AppColors.inkFaint,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  if (errorMessage != null) ...<Widget>[
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorPale,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        errorMessage,
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 14),
                   InkWell(
-                    onTap: () => context.push('/terms'),
-                    child: Text('Terms', style: _termsLinkStyle),
+                    onTap: isSubmitting ? null : _submit,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.maroon,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: isSubmitting
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              _isSignIn ? 'Sign in' : 'Create account',
+                              textAlign: TextAlign.center,
+                              style: AppTypography.bodyStrong.copyWith(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
+                            ),
+                    ),
                   ),
-                  Text(' and ', style: _termsTextStyle),
-                  InkWell(
-                    onTap: () => context.push('/privacy-policy'),
-                    child: Text('Privacy Policy', style: _termsLinkStyle),
+                  const SizedBox(height: 22),
+                  Center(
+                    child: InkWell(
+                      onTap: () =>
+                          context.push(_isSignIn ? '/sign-up' : '/sign-in'),
+                      child: RichText(
+                        text: TextSpan(
+                          style: AppTypography.bodyStrong.copyWith(
+                            color: AppColors.inkSoft,
+                            fontSize: 12,
+                          ),
+                          children: <InlineSpan>[
+                            TextSpan(
+                              text: _isSignIn
+                                  ? 'New here? '
+                                  : 'Already have an account? ',
+                            ),
+                            TextSpan(
+                              text: _isSignIn ? 'Create an account' : 'Sign in',
+                              style: const TextStyle(color: AppColors.maroon),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  Text('.', style: _termsTextStyle),
+                  const SizedBox(height: 22),
+                  // Wrap of separate Text/InkWell segments, not RichText +
+                  // TextSpan.recognizer — a TapGestureRecognizer needs
+                  // explicit disposal to avoid leaking, which a
+                  // StatelessWidget can't do cleanly. This achieves the
+                  // same inline look without that lifecycle concern.
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "By continuing, you agree to daStoryTella's ",
+                        style: _termsTextStyle,
+                      ),
+                      InkWell(
+                        onTap: () => context.push('/terms'),
+                        child: Text('Terms', style: _termsLinkStyle),
+                      ),
+                      Text(' and ', style: _termsTextStyle),
+                      InkWell(
+                        onTap: () => context.push('/privacy-policy'),
+                        child: Text('Privacy Policy', style: _termsLinkStyle),
+                      ),
+                      Text('.', style: _termsTextStyle),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
