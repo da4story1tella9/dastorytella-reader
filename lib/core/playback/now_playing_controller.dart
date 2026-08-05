@@ -1,6 +1,7 @@
 /// Shared "now playing" controller (see ADR-0004). Drives real audio
 /// playback via `just_audio`, loaded from the backend TTS proxy rather
-/// than a bundled placeholder — see docs/adr/0007-player-real-tts.md.
+/// than a bundled placeholder — see docs/adr/0007-player-real-tts.md
+/// and docs/adr/0009-real-voice-selection.md (voice choice).
 library;
 
 import 'dart:async';
@@ -12,6 +13,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../constants/app_constants.dart';
+import '../tts/selected_voice.dart';
 import '../tts/tts_client.dart';
 import 'mock_now_playing_data.dart';
 import 'models/transcript_sentence.dart';
@@ -24,25 +26,14 @@ const List<String> _sleepTimerPresets = <String>[
   'End of chapter',
 ];
 
-// ElevenLabs' "Rachel" voice — synthesis against this now works for
-// real (the ElevenLabs account moved to a paid plan, resolving the
-// free-tier library-voice restriction noted in
-// docs/adr/0007-player-real-tts.md). Still a placeholder in the sense
-// that it isn't driven by any real voice-selection UI (Voices screen
-// is still mock data) — replacing it is tracked alongside that work,
-// not a synthesis-capability problem anymore.
-const String _placeholderVoiceId = '21m00Tcm4TlvDq8ikWAM';
-
 class NowPlayingController extends Notifier<NowPlayingState> {
   late final AudioPlayer _player;
-  late final TTSClient _ttsClient;
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<PlayerState>? _playerStateSub;
 
   @override
   NowPlayingState build() {
     _player = AudioPlayer();
-    _ttsClient = TTSClient();
     ref.onDispose(() {
       unawaited(_positionSub?.cancel());
       unawaited(_playerStateSub?.cancel());
@@ -127,12 +118,19 @@ class NowPlayingController extends Notifier<NowPlayingState> {
         .map((TranscriptSentence sentence) => sentence.text)
         .join();
 
+    // Read once at load time, not watched — this deliberately doesn't
+    // make an already-loaded chapter reactively re-synthesize if the
+    // user changes their default voice mid-session (see ADR-0009);
+    // the new voice takes effect on the next load.
+    final String voiceId = ref.read(selectedVoiceIdProvider);
+    final TTSClient ttsClient = ref.read(ttsClientProvider);
+
     Duration? duration;
     String? errorMessage;
     try {
-      final Uint8List audioBytes = await _ttsClient.synthesize(
+      final Uint8List audioBytes = await ttsClient.synthesize(
         text: text,
-        voiceId: _placeholderVoiceId,
+        voiceId: voiceId,
       );
       final Directory tempDir = await getTemporaryDirectory();
       final File audioFile = File('${tempDir.path}/now_playing.mp3');

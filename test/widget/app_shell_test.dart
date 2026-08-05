@@ -25,8 +25,12 @@ void main() {
     await tester.tap(find.text('Voices'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Amara'), findsOneWidget);
-    expect(find.text('Kwame'), findsOneWidget);
+    // Voices tab title, not specific voice content — the voice list
+    // itself is real now (docs/adr/0009-real-voice-selection.md) and
+    // correctly shows an error state here since there's no Supabase
+    // session in the test environment; see voices_screen_test.dart
+    // for coverage of both the success and failure states.
+    expect(find.text('Voices'), findsWidgets);
 
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
