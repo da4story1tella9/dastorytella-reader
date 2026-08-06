@@ -45,7 +45,7 @@ class IngestionClient {
         ..files.add(
           http.MultipartFile.fromBytes('file', bytes, filename: filename),
         );
-      streamed = await request.send().timeout(const Duration(seconds: 60));
+      streamed = await request.send().timeout(BackendConfig.uploadTimeout);
     } catch (_) {
       throw const IngestionRequestException(
         "Couldn't reach the server. Check your connection and try again.",

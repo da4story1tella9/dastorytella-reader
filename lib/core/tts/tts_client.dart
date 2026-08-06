@@ -49,7 +49,7 @@ class TTSClient {
               'voice_id': voiceId,
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(BackendConfig.requestTimeout);
     } catch (_) {
       // Covers network failure, timeout, and DNS/connection errors —
       // none of that detail is meaningful to show a listener.
@@ -78,12 +78,10 @@ class TTSClient {
 
     final http.Response response;
     try {
-      response = await http
-          .get(
-            Uri.parse('${BackendConfig.baseUrl}/tts/voices'),
-            headers: <String, String>{'Authorization': 'Bearer $accessToken'},
-          )
-          .timeout(const Duration(seconds: 15));
+      response = await http.get(
+        Uri.parse('${BackendConfig.baseUrl}/tts/voices'),
+        headers: <String, String>{'Authorization': 'Bearer $accessToken'},
+      ).timeout(BackendConfig.requestTimeout);
     } catch (_) {
       throw const TTSRequestException(
         "Couldn't reach the server. Check your connection and try again.",

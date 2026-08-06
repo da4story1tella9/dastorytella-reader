@@ -39,10 +39,11 @@ class BooksClient {
             },
             body: jsonEncode(<String, dynamic>{
               'title': title,
-              'chapters': chapters.map((ParsedChapter c) => c.toJson()).toList(),
+              'chapters':
+                  chapters.map((ParsedChapter c) => c.toJson()).toList(),
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(BackendConfig.requestTimeout);
     } catch (_) {
       throw const BooksRequestException(
         "Couldn't reach the server. Check your connection and try again.",
@@ -54,7 +55,9 @@ class BooksClient {
         "Couldn't save this book. Please try again shortly.",
       );
     }
-    return RemoteBook.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return RemoteBook.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 
   Future<List<RemoteBook>> listBooks() async {
@@ -64,12 +67,10 @@ class BooksClient {
 
     final http.Response response;
     try {
-      response = await http
-          .get(
-            Uri.parse('${BackendConfig.baseUrl}/books'),
-            headers: <String, String>{'Authorization': 'Bearer $accessToken'},
-          )
-          .timeout(const Duration(seconds: 15));
+      response = await http.get(
+        Uri.parse('${BackendConfig.baseUrl}/books'),
+        headers: <String, String>{'Authorization': 'Bearer $accessToken'},
+      ).timeout(BackendConfig.requestTimeout);
     } catch (_) {
       throw const BooksRequestException(
         "Couldn't reach the server. Check your connection and try again.",
@@ -83,7 +84,9 @@ class BooksClient {
     }
     final List<dynamic> raw = jsonDecode(response.body) as List<dynamic>;
     return raw
-        .map((dynamic item) => RemoteBook.fromJson(item as Map<String, dynamic>))
+        .map(
+          (dynamic item) => RemoteBook.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -98,12 +101,10 @@ class BooksClient {
 
     final http.Response response;
     try {
-      response = await http
-          .get(
-            Uri.parse('${BackendConfig.baseUrl}/books/$id'),
-            headers: <String, String>{'Authorization': 'Bearer $accessToken'},
-          )
-          .timeout(const Duration(seconds: 15));
+      response = await http.get(
+        Uri.parse('${BackendConfig.baseUrl}/books/$id'),
+        headers: <String, String>{'Authorization': 'Bearer $accessToken'},
+      ).timeout(BackendConfig.requestTimeout);
     } catch (_) {
       throw const BooksRequestException(
         "Couldn't reach the server. Check your connection and try again.",
@@ -118,7 +119,9 @@ class BooksClient {
         "Couldn't load this book. Please try again shortly.",
       );
     }
-    return RemoteBook.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return RemoteBook.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 
   String _requireAccessToken(String messageIfMissing) {
